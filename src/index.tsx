@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 // @ts-ignore: side-effect CSS import handled by bundler
 import './index.css';
 
@@ -217,6 +217,21 @@ const faqItems: FaqItem[] = [
   { q: 'What happens after Ongoing Support ends?', a: "Either your team runs it independently, or a newly hired Head of CS inherits a system that's already built — not a blank page." },
 ];
 
+function LiveTypeform() {
+  useEffect(() => {
+    const existingScript = document.querySelector('script[data-typeform-embed]');
+    if (existingScript) return;
+
+    const script = document.createElement('script');
+    script.src = 'https://embed.typeform.com/next/embed.js';
+    script.async = true;
+    script.dataset.typeformEmbed = 'true';
+    document.body.appendChild(script);
+  }, []);
+
+  return <div className="typeform-live" data-tf-live="01M0JG1PWTQBQAEKV9T2MGFYTX" />;
+}
+
 /* ============================================================
    Page
    ============================================================ */
@@ -252,7 +267,7 @@ export default function CScaleLandingPage() {
             months and the salary of a senior hire.
           </p>
           <div className="hero-ctas">
-            <div className="btn btn-primary">Take the free Health Check</div>
+            <a className="btn btn-primary" href="#health-check">Take the free Health Check</a>
             <div className="btn btn-secondary">Book a 30-minute call</div>
           </div>
         </div>
@@ -285,6 +300,14 @@ export default function CScaleLandingPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section id="health-check" className="wrap health-check-section">
+        <div className="section-heading">
+          <div className="kicker">Free health check</div>
+          <h2>Find your Health &amp; Efficiency Score.</h2>
+        </div>
+        <LiveTypeform />
       </section>
 
       {/* ============ PROBLEM ============ */}
@@ -408,7 +431,7 @@ export default function CScaleLandingPage() {
           <Logo variant="white" fs={44} tagline />
           <h2>Find out your score before your next board meeting.</h2>
           <p>Free, 15 questions, five minutes — no credit card, no sales call required to see your result.</p>
-          <div className="btn btn-primary-onDark" style={{ marginTop: 8 }}>Take the free Health Check</div>
+          <a className="btn btn-primary-onDark" href="#health-check" style={{ marginTop: 8 }}>Take the free Health Check</a>
         </div>
       </section>
 
