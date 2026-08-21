@@ -1,6 +1,6 @@
 import { getDatabase } from '@netlify/database'
 
-const db = getDatabase()
+const db = getDatabase({ connectionString: process.env.NETLIFY_DB_URL })
 
 // Fill in your real scoring/rules logic here. Receives the flat
 // { [fieldRef]: answer } map built below and must return whatever

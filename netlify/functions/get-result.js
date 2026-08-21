@@ -1,6 +1,6 @@
 import { getDatabase } from '@netlify/database'
 
-const db = getDatabase()
+const db = getDatabase({ connectionString: process.env.NETLIFY_DB_URL })
 
 export const handler = async (event) => {
     const responseId = event.queryStringParameters?.rid
