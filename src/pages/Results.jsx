@@ -55,27 +55,84 @@ function Results() {
     }, [responseId])
 
     if (status === 'loading') {
-        return <p className="results-state">Crunching your answers…</p>
+        return (
+            <main className="results-page">
+                <div className="results-shell">
+                    <p className="kicker">Health &amp; Efficiency Score</p>
+                    <h1>Crunching your answers...</h1>
+                    <p className="results-lede">Your results are being prepared. This usually takes a few seconds.</p>
+                    <div className="results-loader" aria-hidden="true" />
+                </div>
+            </main>
+        )
     }
 
     if (status === 'not-found') {
         return (
-            <p className="results-state">
-                We couldn't find a result for this link yet. If you just submitted
-                the quiz, wait a few seconds and refresh. Response ID: {responseId || 'missing'}
-            </p>
+            <main className="results-page">
+                <div className="results-shell results-message">
+                    <p className="kicker">Health &amp; Efficiency Score</p>
+                    <h1>Your result is almost ready.</h1>
+                    <p className="results-lede">We couldn't find this submission yet. Wait a few seconds, then refresh the page.</p>
+                    <button className="btn btn-primary" type="button" onClick={() => window.location.reload()}>Refresh result</button>
+                </div>
+            </main>
         )
     }
 
     if (status === 'error') {
-        return <p className="results-state">Something went wrong loading your result.</p>
+        return (
+            <main className="results-page">
+                <div className="results-shell results-message">
+                    <p className="kicker">Health &amp; Efficiency Score</p>
+                    <h1>We hit a snag.</h1>
+                    <p className="results-lede">Something went wrong loading your result. Please try refreshing the page.</p>
+                    <button className="btn btn-primary" type="button" onClick={() => window.location.reload()}>Try again</button>
+                </div>
+            </main>
+        )
     }
 
+    const answers = result?.answers && typeof result.answers === 'object' ? Object.entries(result.answers) : []
+
     return (
-        <section className="results-state">
-            <h1>Your result</h1>
-            <pre>{JSON.stringify(result, null, 2)}</pre>
-        </section>
+        <main className="results-page">
+            <div className="results-shell">
+                <p className="kicker">Your assessment</p>
+                <h1>Your Health &amp; Efficiency Score</h1>
+                <p className="results-lede">A clear snapshot of where your customer success system is strong and where it can grow.</p>
+
+                <section className="results-summary card">
+                    <div className="results-score-row">
+                        <div>
+                            <div className="results-summary-label">Your score</div>
+                            <div className="results-score">{result?.score ?? 0}<span>/100</span></div>
+                        </div>
+                        <div className="results-score-label">{result?.scoreLabel || 'Assessment complete'}</div>
+                    </div>
+                    <p>{result?.summary || 'Your assessment is ready.'}</p>
+                </section>
+
+                {answers.length > 0 && (
+                    <section className="results-answers">
+                        <div className="results-section-heading">
+                            <p className="kicker">Your responses</p>
+                            <h2>What you told us</h2>
+                        </div>
+                        <div className="results-answer-list">
+                            {answers.map(([question, answer]) => (
+                                <div className="results-answer card" key={question}>
+                                    <h3>{question}</h3>
+                                    <p>{typeof answer === 'boolean' ? (answer ? 'Yes' : 'No') : String(answer)}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                <a className="btn btn-secondary" href="/">Back to CScale</a>
+            </div>
+        </main>
     )
 }
 

@@ -2,19 +2,31 @@ import { getDatabase } from '@netlify/database'
 
 const db = getDatabase({ connectionString: process.env.NETLIFY_DB_URL })
 
+const questionWeights = [2, 2, 2, 2, 2, 2.5, 3, 2, 2, 2, 3, 2.5, 3, 2, 2.5]
+
 // Fill in your real scoring/rules logic here. Receives the flat
-// { [fieldRef]: answer } map built below and must return whatever
+// { [fieldTitle]: answer } map built below and must return whatever
 // shape you want to render on the results page.
-function computeTailoredResult(answers) {
+function computeTailoredResult(answers, scoredQuestions) {
+    const maxScore = questionWeights.reduce((total, weight) => total + weight, 0)
+    const earnedScore = scoredQuestions.reduce((total, question, index) => {
+        const answer = answers[question]
+        const isPositive = answer === true || answer === 'yes'
+        return total + (isPositive ? questionWeights[index] : 0)
+    }, 0)
+    const score = maxScore > 0 ? Math.round((earnedScore / maxScore) * 100) : 0
+
     return {
-        summary: 'Placeholder result — replace computeTailoredResult() with real logic.',
+        score,
+        scoreLabel: score >= 70 ? 'Strong foundation' : score >= 40 ? 'Room to grow' : 'Needs attention',
+        summary: `You scored ${score} out of 100 on the Health & Efficiency Score.`,
         answers,
     }
 }
 
 function flattenAnswers(formResponse) {
     const fields = new Map(
-        (formResponse.definition?.fields ?? []).map((f) => [f.id, f.ref ?? f.id]),
+        (formResponse.definition?.fields ?? []).map((f) => [f.id, f.title ?? f.ref ?? f.id]),
     )
 
     const answers = {}
@@ -40,7 +52,10 @@ export const handler = async (event) => {
     }
 
     const answers = flattenAnswers(formResponse)
-    const tailoredResult = computeTailoredResult(answers)
+    const scoredQuestions = (formResponse.definition?.fields ?? [])
+        .filter((field) => field.type === 'yes_no')
+        .map((field) => field.title ?? field.ref ?? field.id)
+    const tailoredResult = computeTailoredResult(answers, scoredQuestions)
 
     try {
         await db.sql`
