@@ -9,6 +9,11 @@
 
 # Route /api/webhook to the Netlify function of the same name.
 [[redirects]]
+  from = "/api/result"
+  to = "/.netlify/functions/get-result"
+  status = 200
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
   status = 200
