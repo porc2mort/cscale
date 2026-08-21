@@ -33,7 +33,7 @@ export const handler = async (event) => {
 
     const payload = JSON.parse(event.body || '{}')
     const formResponse = payload?.form_response
-    const responseId = formResponse?.token
+    const responseId = formResponse?.token?.trim().toLowerCase()
 
     if (!responseId) {
         return { statusCode: 400, body: JSON.stringify({ error: 'Missing form_response.token' }) }
