@@ -4,6 +4,8 @@
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["@netlify/database"]
 
 # Route /api/webhook to the Netlify function of the same name.
 [[redirects]]
