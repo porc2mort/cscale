@@ -62,7 +62,7 @@ function Results() {
         return (
             <p className="results-state">
                 We couldn't find a result for this link yet. If you just submitted
-                the quiz, wait a few seconds and refresh.
+                the quiz, wait a few seconds and refresh. Response ID: {responseId || 'missing'}
             </p>
         )
     }

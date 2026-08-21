@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { Widget } from '@typeform/embed-react';
 import { useNavigate } from 'react-router-dom';
 // @ts-ignore: side-effect CSS import handled by bundler
 import './index.css';
@@ -221,37 +222,7 @@ const faqItems: FaqItem[] = [
 function LiveTypeform() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const typeformWindow = window as Window & {
-      cscaleTypeformSubmit?: ({ responseId }: { responseId: string }) => void;
-    };
-    typeformWindow.cscaleTypeformSubmit = ({ responseId }) => {
-      navigate(`/results?rid=${encodeURIComponent(responseId)}`);
-    };
-
-    const existingScript = document.querySelector('script[data-typeform-embed]');
-    if (existingScript) return () => {
-      delete typeformWindow.cscaleTypeformSubmit;
-    };
-
-    const script = document.createElement('script');
-    script.src = 'https://embed.typeform.com/next/embed.js';
-    script.async = true;
-    script.dataset.typeformEmbed = 'true';
-    document.body.appendChild(script);
-
-    return () => {
-      delete typeformWindow.cscaleTypeformSubmit;
-    };
-  }, [navigate]);
-
-  return (
-    <div
-      className="typeform-live"
-      data-tf-live="01M0JG1PWTQBQAEKV9T2MGFYTX"
-      data-tf-on-submit="cscaleTypeformSubmit"
-    />
-  );
+  return <Widget id={import.meta.env.VITE_TYPEFORM_FORM_ID || 'Hq9MVJgW'} className="typeform-live" onSubmit={({ responseId }) => navigate(`/results?rid=${encodeURIComponent(responseId.trim())}`)} />;
 }
 
 /* ============================================================

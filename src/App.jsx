@@ -4,13 +4,13 @@ import Quiz from './pages/Quiz.jsx'
 import Results from './pages/Results.jsx'
 
 function App() {
-	return (
-		<Routes>
-			<Route path="/" element={<CScaleLandingPage />} />
-			<Route path="/quiz" element={<Quiz />} />
-			<Route path="/results" element={<Results />} />
-		</Routes>
-	)
+  return (
+    <Routes>
+      <Route path="/" element={<CScaleLandingPage />} />
+      <Route path="/quiz" element={<Quiz />} />
+      <Route path="/results" element={<Results />} />
+    </Routes>
+  )
 }
 
 export default App

@@ -3,7 +3,7 @@ import { getDatabase } from '@netlify/database'
 const db = getDatabase({ connectionString: process.env.NETLIFY_DB_URL })
 
 export const handler = async (event) => {
-    const responseId = event.queryStringParameters?.rid
+    const responseId = event.queryStringParameters?.rid?.trim()
 
     if (!responseId) {
         return { statusCode: 400, body: JSON.stringify({ error: 'Missing rid' }) }
