@@ -3,6 +3,15 @@ import { getDatabase } from '@netlify/database'
 const db = getDatabase({ connectionString: process.env.NETLIFY_DB_URL })
 
 const questionWeights = [2, 2, 2, 2, 2, 2.5, 3, 2, 2, 2, 3, 2.5, 3, 2, 2.5]
+const scoreBuckets = [
+    { name: 'Onboarding', indexes: [0, 1] },
+    { name: 'Adoption', indexes: [2, 3] },
+    { name: 'Satisfaction', indexes: [4, 5] },
+    { name: 'Retention', indexes: [6, 7] },
+    { name: 'Expansion', indexes: [8, 9] },
+    { name: 'GTM Strategy', indexes: [10, 11] },
+    { name: 'Cross-Team Alignment', indexes: [12, 13, 14] },
+]
 
 // Fill in your real scoring/rules logic here. Receives the flat
 // { [fieldTitle]: answer } map built below and must return whatever
@@ -16,10 +25,33 @@ function computeTailoredResult(answers, scoredQuestions) {
     }, 0)
     const score = maxScore > 0 ? Math.round((earnedScore / maxScore) * 100) : 0
 
+    const categories = scoreBuckets.map((bucket) => {
+        const maxCategoryScore = bucket.indexes.reduce(
+            (total, index) => total + (questionWeights[index] ?? 0),
+            0,
+        )
+        const earnedCategoryScore = bucket.indexes.reduce((total, index) => {
+            const question = scoredQuestions[index]
+            if (!question) return total
+            const answer = answers[question]
+            const isPositive = answer === true || answer === 'yes'
+            return total + (isPositive ? questionWeights[index] : 0)
+        }, 0)
+
+        return {
+            name: bucket.name,
+            value:
+                maxCategoryScore > 0
+                    ? Math.round((earnedCategoryScore / maxCategoryScore) * 100)
+                    : 0,
+        }
+    })
+
     return {
         score,
         scoreLabel: score >= 70 ? 'Strong foundation' : score >= 40 ? 'Room to grow' : 'Needs attention',
         summary: `You scored ${score} out of 100 on the Health & Efficiency Score.`,
+        categories,
         answers,
     }
 }
