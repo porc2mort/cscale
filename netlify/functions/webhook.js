@@ -2,15 +2,15 @@ import { getDatabase } from '@netlify/database'
 
 const db = getDatabase({ connectionString: process.env.NETLIFY_DB_URL })
 
-const questionWeights = [2, 2, 2, 2, 2, 2.5, 3, 2, 2, 2, 3, 2.5, 3, 2, 2.5]
+const questionWeights = [1.75, 1.75, 2.25, 3, 2, 1.5, 3, 2, 2.75, 2.75, 3.25, 3, 3.5, 2.5, 3]
 const scoreBuckets = [
     { name: 'Onboarding', indexes: [0, 1] },
     { name: 'Adoption', indexes: [2, 3] },
     { name: 'Satisfaction', indexes: [4, 5] },
-    { name: 'Retention', indexes: [6, 7] },
-    { name: 'Expansion', indexes: [8, 9] },
-    { name: 'GTM Strategy', indexes: [10, 11] },
-    { name: 'Cross-Team Alignment', indexes: [12, 13, 14] },
+    { name: 'Retention', indexes: [6, 7, 8] },
+    { name: 'Expansion', indexes: [9] },
+    { name: 'GTM Strategy', indexes: [10, 11, 12] },
+    { name: 'Cross-Team Alignment', indexes: [13, 14] },
 ]
 
 // Fill in your real scoring/rules logic here. Receives the flat
