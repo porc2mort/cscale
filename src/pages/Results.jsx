@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { CALENDLY_URL, openCalendly } from '../lib/calendly'
 
 // The Typeform webhook (netlify/functions/webhook.js) writes the row a moment
 // after submit, so we poll a few times before giving up.
@@ -297,8 +298,12 @@ function Results() {
                     <h1 style={{ fontSize: 38, lineHeight: 1.18 }}>{headline}</h1>
                     <p style={{ fontSize: 17, lineHeight: 1.6, color: 'var(--grey)', maxWidth: '56ch' }}>{summary}</p>
                     <div style={{ marginTop: 6 }}>
-                        <a className="btn btn-primary" href="#">{zone.cta}</a>
+                        <a className="btn btn-primary" href={CALENDLY_URL} onClick={openCalendly}>{zone.cta}</a>
                     </div>
+                    <p style={{ fontSize: 13, color: 'var(--grey-light)' }}>
+                        This preview is based on 15 of the full 50-question Diagnostic —{' '}
+                        <a href={CALENDLY_URL} onClick={openCalendly}>book a call</a> with me for the complete picture.
+                    </p>
                 </div>
 
                 <div className="card gauge-card">

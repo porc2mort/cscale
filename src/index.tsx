@@ -1,6 +1,7 @@
 import React from 'react';
 import { Widget } from '@typeform/embed-react';
 import { useNavigate } from 'react-router-dom';
+import { CALENDLY_URL, openCalendly } from './lib/calendly';
 // @ts-ignore: side-effect CSS import handled by bundler
 import './index.css';
 
@@ -198,9 +199,9 @@ const offerStages: OfferStage[] = [
     },
     {
         step: 3,
-        title: 'Ongoing Support',
+        title: 'Scale',
         duration: 'Monthly retainer',
-        description: 'A fractional Head of CS Ops runs point on execution, a few days a month, until your team — or your next hire — can take it from here.',
+        description: 'A fractional Head of CS Ops keeps the system we built from breaking as you grow — a few days a month, until it\'s ready to run on its own.',
         price: 'Starting at $3,500 CAD / mo',
     },
 ];
@@ -222,7 +223,9 @@ const faqItems: FaqItem[] = [
 function LiveTypeform() {
     const navigate = useNavigate();
 
-    return <Widget id={import.meta.env.VITE_TYPEFORM_FORM_ID || 'Hq9MVJgW'} className="typeform-live" onSubmit={({ responseId }) => navigate(`/results?rid=${encodeURIComponent(responseId.trim())}`)} />;
+    const formId = (import.meta as ImportMeta & { env?: { VITE_TYPEFORM_FORM_ID?: string } }).env?.VITE_TYPEFORM_FORM_ID || 'Hq9MVJgW';
+
+    return <Widget id={formId} className="typeform-live" onSubmit={({ responseId }) => navigate(`/results?rid=${encodeURIComponent(responseId.trim())}`)} />;
 }
 
 /* ============================================================
@@ -235,14 +238,14 @@ export default function CScaleLandingPage() {
             {/* ============ HEADER ============ */}
             <header className="header">
                 <div className="wrap header-inner">
-                    <Logo variant="dark" fs={30} />
+                    <Logo variant="dark" fs={38} />
                     <nav className="nav">
                         <a href="#method">Framework</a>
                         <a href="#offer">How it works</a>
                         <a href="#who">Who it's for</a>
                         <a href="#faq">FAQ</a>
                     </nav>
-                    <div className="btn btn-primary btn-sm">Book a call</div>
+                    <a className="btn btn-primary btn-sm" href={CALENDLY_URL} onClick={openCalendly}>Book a call</a>
                 </div>
             </header>
 
@@ -251,7 +254,7 @@ export default function CScaleLandingPage() {
                 <div className="hero-copy">
                     <div className="kicker">Customer Success Operations, built to scale</div>
                     <h1>
-                        Customer Success isn't a hire.
+                        Customer Success isn't just an hire.
                         <br />
                         It's an entire system.
                     </h1>
@@ -260,8 +263,8 @@ export default function CScaleLandingPage() {
                         months and the salary of a senior hire.
                     </p>
                     <div className="hero-ctas">
-                        <a className="btn btn-primary" href="#health-check">Take the free Health Check</a>
-                        <div className="btn btn-secondary">Book a 30-minute call</div>
+                        <a className="btn btn-primary" href="#health-check">Take the free health check</a>
+                        <div className="btn btn-secondary">Start the full diagnostic</div>
                     </div>
                 </div>
 
@@ -369,6 +372,13 @@ export default function CScaleLandingPage() {
                                 <div className="offer-duration">{stage.duration}</div>
                                 <p className="offer-desc">{stage.description}</p>
                                 <div className="offer-price">{stage.price}</div>
+                                <a
+                                    className={`btn btn-sm offer-cta ${stage.featured ? 'btn-primary-onDark' : 'btn-secondary'}`}
+                                    href={CALENDLY_URL}
+                                    onClick={openCalendly}
+                                >
+                                    Request a quote
+                                </a>
                             </div>
                         ))}
                     </div>
@@ -379,7 +389,7 @@ export default function CScaleLandingPage() {
             <section id="who" className="wrap who-section">
                 <div>
                     <div className="kicker" style={{ marginBottom: 14 }}>Is this you?</div>
-                    <h2>Built for SaaS startups between $1M and $8M CAD in ARR.</h2>
+                    <h2>Built for SaaS startups between $1M and $10M</h2>
                 </div>
                 <div className="who-list">
                     {whoPoints.map((point) => (
@@ -423,7 +433,7 @@ export default function CScaleLandingPage() {
                 <div className="wrap cta-banner-inner">
                     <Logo variant="white" fs={44} tagline />
                     <h2>Find out your score before your next board meeting.</h2>
-                    <p>Free, 15 questions, five minutes — no credit card, no sales call required to see your result.</p>
+                    <p>Free, 15 questions, five minutes, no credit card, no sales call required to see your result.</p>
                     <a className="btn btn-primary-onDark" href="#health-check" style={{ marginTop: 8 }}>Take the free Health Check</a>
                 </div>
             </section>

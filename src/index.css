@@ -29,7 +29,7 @@ a {
     text-decoration: none;
 }
 
-a:hover {
+a:hover:not(.btn) {
     color: var(--green);
 }
 
@@ -427,6 +427,10 @@ p {
     gap: 26px;
 }
 
+.hero-copy .kicker {
+    font-size: 16px;
+}
+
 .hero-copy h1 {
     font-size: 50px;
     line-height: 1.12;
@@ -740,6 +744,11 @@ p {
 .offer-card.featured .offer-price {
     border-top-color: rgba(255, 255, 255, 0.18);
     color: var(--white);
+}
+
+.offer-cta {
+    margin-top: 18px;
+    width: 100%;
 }
 
 /* ============ WHO IT'S FOR ============ */
