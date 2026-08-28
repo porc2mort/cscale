@@ -122,7 +122,7 @@ function LogoIcon({ variant }: { variant: 'dark' | 'white' }) {
     );
 }
 
-function Logo({ variant, fs, tagline }: { variant: 'dark' | 'white'; fs: number; tagline?: boolean }) {
+function Logo({ variant, fs, tagline }: { variant: 'dark' | 'white'; fs: number; tagline?: boolean | string }) {
     return (
         <div className="logo" style={{ '--fs': `${fs}px` } as React.CSSProperties}>
             <div className="logo-row">
@@ -139,7 +139,7 @@ function Logo({ variant, fs, tagline }: { variant: 'dark' | 'white'; fs: number;
                     S<span className="logo-green">cale</span>
                 </div>
             </div>
-            {tagline && <div className="logo-tagline">Customer Success, built to scale</div>}
+            {tagline && <div className="logo-tagline">{typeof tagline === 'string' ? tagline : 'Customer Success, built to scale'}</div>}
         </div>
     );
 }
@@ -148,17 +148,63 @@ function Logo({ variant, fs, tagline }: { variant: 'dark' | 'white'; fs: number;
    Content
    ============================================================ */
 
-type ScoreRow = { label: string; value: number; warm: boolean };
+type ScoreRow = { label: string; value: number };
 
 const scoreRows: ScoreRow[] = [
-    { label: 'Onboarding', value: 76, warm: false },
-    { label: 'Adoption', value: 62, warm: false },
-    { label: 'Satisfaction', value: 70, warm: false },
-    { label: 'Retention', value: 47, warm: true },
-    { label: 'Expansion', value: 54, warm: true },
-    { label: 'GTM Strategy', value: 56, warm: true },
-    { label: 'Cross-Team Alignment', value: 74, warm: false },
+    { label: 'Onboarding', value: 76 },
+    { label: 'Adoption', value: 62 },
+    { label: 'Satisfaction', value: 70 },
+    { label: 'Retention', value: 47 },
+    { label: 'Expansion', value: 54 },
+    { label: 'GTM Strategy', value: 56 },
+    { label: 'Cross-Team Alignment', value: 74 },
 ];
+
+const toRad = (d: number) => (d * Math.PI) / 180;
+
+const RADAR_RINGS = [
+    '150.00,123.75 170.52,133.63 175.59,155.84 161.39,173.65 138.61,173.65 124.41,155.84 129.48,133.63',
+    '150.00,97.50 191.04,117.27 201.19,161.68 172.78,197.30 127.22,197.30 98.81,161.68 108.96,117.27',
+    '150.00,71.25 211.57,100.90 226.78,167.52 184.17,220.95 115.83,220.95 73.22,167.52 88.43,100.90',
+    '150,45 232.09,84.51 252.39,173.37 195.56,244.60 104.44,244.60 47.61,173.37 67.91,84.51',
+];
+
+const RADAR_SPOKES: [string, string][] = [
+    ['150', '45'],
+    ['232.09', '84.51'],
+    ['252.39', '173.37'],
+    ['195.56', '244.60'],
+    ['104.44', '244.60'],
+    ['47.61', '173.37'],
+    ['67.91', '84.51'],
+];
+
+const RADAR_LABEL_POS = [
+    { left: '50.00%', top: '7.33%' },
+    { left: '83.36%', top: '23.40%' },
+    { left: '91.60%', top: '59.49%' },
+    { left: '68.51%', top: '88.44%' },
+    { left: '31.49%', top: '88.44%' },
+    { left: '8.40%', top: '59.49%' },
+    { left: '16.64%', top: '23.40%' },
+];
+
+function radarPoints(rows: ScoreRow[]) {
+    const rcx = 150;
+    const rcy = 150;
+    const rmax = 105;
+    const n = rows.length;
+    return rows
+        .map((row, i) => {
+            const a = -90 + i * (360 / n);
+            const rad = toRad(a);
+            const r = rmax * (row.value / 100);
+            const x = rcx + r * Math.cos(rad);
+            const y = rcy + r * Math.sin(rad);
+            return `${x.toFixed(2)},${y.toFixed(2)}`;
+        })
+        .join(' ');
+}
 
 type MethodCategory = { name: string; description: string; icon: React.ReactNode };
 
@@ -178,6 +224,7 @@ type OfferStage = {
     duration: string;
     description: string;
     price: string;
+    showPrice?: boolean;
     featured?: boolean;
 };
 
@@ -188,6 +235,7 @@ const offerStages: OfferStage[] = [
         duration: '2–3 weeks',
         description: 'Get your Health & Efficiency Score, a full breakdown across all 7 categories, and a top-5 action plan ranked by impact.',
         price: 'Starting at $5,000 CAD',
+        showPrice: true,
     },
     {
         step: 2,
@@ -238,7 +286,7 @@ export default function CScaleLandingPage() {
             {/* ============ HEADER ============ */}
             <header className="header">
                 <div className="wrap header-inner">
-                    <Logo variant="dark" fs={38} />
+                    <Logo variant="dark" fs={58} />
                     <nav className="nav">
                         <a href="#method">Framework</a>
                         <a href="#offer">How it works</a>
@@ -249,22 +297,40 @@ export default function CScaleLandingPage() {
                 </div>
             </header>
 
+            <div className="header-subline">
+                <div className="wrap">Customer Success Operations, built to scale</div>
+            </div>
+
             {/* ============ HERO ============ */}
             <section className="wrap hero">
                 <div className="hero-copy">
-                    <div className="kicker">Customer Success Operations, built to scale</div>
                     <h1>
                         Customer Success isn't just an hire.
                         <br />
                         It's an entire system.
                     </h1>
                     <p>
-                        CScale diagnoses, builds, and runs the CS Ops foundations for growing SaaS startups — without the six
+                        CScale diagnoses, builds, and runs the CS Ops foundations for growing SaaS startups without <br>
+                        </br>the six
                         months and the salary of a senior hire.
                     </p>
                     <div className="hero-ctas">
                         <a className="btn btn-primary" href="#health-check">Take the free health check</a>
                         <div className="btn btn-secondary">Start the full diagnostic</div>
+                    </div>
+                    <div className="hero-facts">
+                        <div className="hero-fact">
+                            <IconCheck />
+                            <p>2–3 weeks to your first Diagnostic</p>
+                        </div>
+                        <div className="hero-fact">
+                            <IconCheck />
+                            <p>7 categories scored, not a guess</p>
+                        </div>
+                        <div className="hero-fact">
+                            <IconCheck />
+                            <p>No six-month contract to start</p>
+                        </div>
                     </div>
                 </div>
 
@@ -279,19 +345,26 @@ export default function CScaleLandingPage() {
                         <div className="score-zone">Orange zone</div>
                     </div>
                     <div className="score-divider" />
-                    <div className="score-rows">
-                        {scoreRows.map((row) => (
-                            <div className="score-row" key={row.label}>
-                                <div className="score-row-label">{row.label}</div>
-                                <div className="score-row-track">
-                                    <div
-                                        className="score-row-fill"
-                                        style={{
-                                            width: `${row.value}%`,
-                                            background: row.warm ? '#D08A2E' : 'var(--green)',
-                                        }}
-                                    />
-                                </div>
+                    <div className="radar-chart">
+                        <svg viewBox="0 0 300 300" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+                            {RADAR_RINGS.map((points, i) => (
+                                <polygon key={i} points={points} fill="none" stroke="var(--border)" strokeWidth="1" />
+                            ))}
+                            {RADAR_SPOKES.map(([x, y], i) => (
+                                <line key={i} x1="150" y1="150" x2={x} y2={y} stroke="var(--border)" strokeWidth="1" />
+                            ))}
+                            <polygon
+                                points={radarPoints(scoreRows)}
+                                fill="#B8860B"
+                                fillOpacity="0.16"
+                                stroke="#B8860B"
+                                strokeWidth="2.5"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                        {scoreRows.map((row, i) => (
+                            <div key={row.label} className="radar-label" style={RADAR_LABEL_POS[i]}>
+                                {row.label} - {row.value}
                             </div>
                         ))}
                     </div>
@@ -371,7 +444,7 @@ export default function CScaleLandingPage() {
                                 <h3>{stage.title}</h3>
                                 <div className="offer-duration">{stage.duration}</div>
                                 <p className="offer-desc">{stage.description}</p>
-                                <div className="offer-price">{stage.price}</div>
+                                {stage.showPrice && <div className="offer-price">{stage.price}</div>}
                                 <a
                                     className={`btn btn-sm offer-cta ${stage.featured ? 'btn-primary-onDark' : 'btn-secondary'}`}
                                     href={CALENDLY_URL}
@@ -402,7 +475,7 @@ export default function CScaleLandingPage() {
             </section>
 
             {/* ============ PROOF ============ */}
-            <section className="proof-section">
+            {/* <section className="proof-section">
                 <div className="wrap proof-grid">
                     <div className="card proof-card">
                         <div className="proof-stat">[+X points NRR]</div>
@@ -426,7 +499,7 @@ export default function CScaleLandingPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* ============ CTA BANNER ============ */}
             <section className="cta-banner">

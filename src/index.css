@@ -399,6 +399,22 @@ p {
     height: 88px;
 }
 
+.header-subline {
+    background: var(--green-light);
+    border-bottom: 1px solid var(--border);
+}
+
+.header-subline .wrap {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--green-deep);
+}
+
 .nav {
     display: flex;
     align-items: center;
@@ -416,7 +432,7 @@ p {
     display: grid;
     grid-template-columns: 1.05fr 0.95fr;
     gap: 64px;
-    align-items: center;
+    align-items: start;
     padding-top: 88px;
     padding-bottom: 96px;
 }
@@ -450,6 +466,30 @@ p {
     flex-wrap: wrap;
 }
 
+.hero-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.hero-fact {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.hero-fact svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.hero-fact p {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--navy);
+}
+
 .health-check-section {
     padding-bottom: 96px;
 }
@@ -468,7 +508,6 @@ p {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 26px;
 }
 
 .score-card-head-label {
@@ -518,38 +557,6 @@ p {
 .score-divider {
     height: 1px;
     background: var(--border);
-    margin-bottom: 22px;
-}
-
-.score-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 13px;
-}
-
-.score-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.score-row-label {
-    width: 130px;
-    font-size: 13px;
-    color: var(--grey);
-    flex-shrink: 0;
-}
-
-.score-row-track {
-    flex: 1;
-    height: 8px;
-    background: var(--paper);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.score-row-fill {
-    height: 100%;
 }
 
 /* ============ PROBLEM ============ */
