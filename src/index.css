@@ -499,6 +499,39 @@ p {
     margin-top: 40px;
 }
 
+.typeform-welcome {
+    min-height: 700px;
+    margin-top: 40px;
+    background: var(--navy);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+}
+
+.typeform-welcome-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 22px;
+}
+
+.typeform-welcome-inner h2 {
+    font-size: 32px;
+    line-height: 1.25;
+    color: var(--white);
+    max-width: 640px;
+}
+
+.typeform-welcome-inner p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--grey-light);
+    max-width: 520px;
+}
+
 .score-card {
     padding: 36px;
     box-shadow: 0 24px 60px -24px rgba(22, 35, 58, 0.22);

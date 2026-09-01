@@ -276,11 +276,38 @@ function LiveTypeform() {
     return <Widget id={formId} className="typeform-live" onSubmit={({ responseId }) => navigate(`/results?rid=${encodeURIComponent(responseId.trim())}`)} />;
 }
 
+function HealthCheckSection({ started, onStart }: { started: boolean; onStart: () => void }) {
+    return (
+        <section id="health-check" className="wrap health-check-section">
+            <div className="section-heading">
+                <div className="kicker">Free health check</div>
+                <h2>Find your Health &amp; Efficiency Score.</h2>
+            </div>
+            {started ? (
+                <LiveTypeform />
+            ) : (
+                <div className="typeform-welcome">
+                    <div className="typeform-welcome-inner">
+                        <Logo variant="white" fs={44} tagline />
+                        <h2>Find out your score before your next board meeting.</h2>
+                        <p>Free, 15 questions, five minutes, no credit card, no sales call required to see your result.</p>
+                        <button type="button" className="btn btn-primary-onDark" style={{ marginTop: 8 }} onClick={onStart}>
+                            Take the free Health Check
+                        </button>
+                    </div>
+                </div>
+            )}
+        </section>
+    );
+}
+
 /* ============================================================
    Page
    ============================================================ */
 
 export default function CScaleLandingPage() {
+    const [healthCheckStarted, setHealthCheckStarted] = React.useState(false);
+
     return (
         <div>
             {/* ============ HEADER ============ */}
@@ -293,7 +320,6 @@ export default function CScaleLandingPage() {
                         <a href="#who">Who it's for</a>
                         <a href="#faq">FAQ</a>
                     </nav>
-                    <a className="btn btn-primary btn-sm" href={CALENDLY_URL} onClick={openCalendly}>Book a call</a>
                 </div>
             </header>
 
@@ -371,13 +397,7 @@ export default function CScaleLandingPage() {
                 </div>
             </section>
 
-            <section id="health-check" className="wrap health-check-section">
-                <div className="section-heading">
-                    <div className="kicker">Free health check</div>
-                    <h2>Find your Health &amp; Efficiency Score.</h2>
-                </div>
-                <LiveTypeform />
-            </section>
+            <HealthCheckSection started={healthCheckStarted} onStart={() => setHealthCheckStarted(true)} />
 
             {/* ============ PROBLEM ============ */}
             <section className="problem-section">
@@ -507,7 +527,14 @@ export default function CScaleLandingPage() {
                     <Logo variant="white" fs={44} tagline />
                     <h2>Find out your score before your next board meeting.</h2>
                     <p>Free, 15 questions, five minutes, no credit card, no sales call required to see your result.</p>
-                    <a className="btn btn-primary-onDark" href="#health-check" style={{ marginTop: 8 }}>Take the free Health Check</a>
+                    <a
+                        className="btn btn-primary-onDark"
+                        href="#health-check"
+                        style={{ marginTop: 8 }}
+                        onClick={() => setHealthCheckStarted(true)}
+                    >
+                        Take the free Health Check
+                    </a>
                 </div>
             </section>
 
@@ -535,7 +562,6 @@ export default function CScaleLandingPage() {
                         <a href="#method">Framework</a>
                         <a href="#offer">How it works</a>
                         <a href="#faq">FAQ</a>
-                        <a href="#">[hello@cscale.co]</a>
                         <a href="#">LinkedIn</a>
                     </div>
                 </div>
