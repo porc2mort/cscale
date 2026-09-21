@@ -2,6 +2,12 @@ import React from 'react';
 import { Widget } from '@typeform/embed-react';
 import { useNavigate } from 'react-router-dom';
 import { CALENDLY_URL, openCalendly } from './lib/calendly';
+// @ts-ignore: no type declarations for this plain JS helper
+import { useRadarPush, pushRadarCoords, radarCoordsToPoints } from './lib/radar';
+// @ts-ignore: no type declarations for this plain JS helper
+import { useLanguage } from './lib/i18n.jsx';
+// @ts-ignore: no type declarations for this plain JS helper
+import LanguageSwitcher from './components/LanguageSwitcher.jsx';
 // @ts-ignore: side-effect CSS import handled by bundler
 import './index.css';
 
@@ -18,11 +24,22 @@ function IconTrendUp() {
     );
 }
 
-function IconClock() {
+function IconTrendDown() {
     return (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green-deep)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 8v4l3 2" />
+            <path d="M3 8l5 6 4-4 8 9" />
+            <path d="M15 19h5v-5" />
+        </svg>
+    );
+}
+
+function IconScatter() {
+    return (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green-deep)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="6" cy="7" r="1.6" />
+            <circle cx="17" cy="6" r="1.6" />
+            <circle cx="9" cy="17" r="1.6" />
+            <circle cx="18" cy="15" r="1.6" />
         </svg>
     );
 }
@@ -31,6 +48,27 @@ function IconBarsAsc() {
     return (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green-deep)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 19V10M11 19V4M18 19v-7" />
+        </svg>
+    );
+}
+
+function IconGauge() {
+    return (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green-deep)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 15a8 8 0 1116 0" />
+            <path d="M12 15l4-5" />
+            <path d="M12 15h.01" />
+        </svg>
+    );
+}
+
+function IconRepeat() {
+    return (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green-deep)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 12a8 8 0 0113.66-5.66L20 8" />
+            <path d="M20 4v4h-4" />
+            <path d="M20 12a8 8 0 01-13.66 5.66L4 16" />
+            <path d="M4 20v-4h4" />
         </svg>
     );
 }
@@ -123,6 +161,7 @@ function LogoIcon({ variant }: { variant: 'dark' | 'white' }) {
 }
 
 function Logo({ variant, fs, tagline }: { variant: 'dark' | 'white'; fs: number; tagline?: boolean | string }) {
+    const { t } = useLanguage();
     return (
         <div className="logo" style={{ '--fs': `${fs}px` } as React.CSSProperties}>
             <div className="logo-row">
@@ -139,7 +178,7 @@ function Logo({ variant, fs, tagline }: { variant: 'dark' | 'white'; fs: number;
                     S<span className="logo-green">cale</span>
                 </div>
             </div>
-            {tagline && <div className="logo-tagline">{typeof tagline === 'string' ? tagline : 'Customer Success, built to scale'}</div>}
+            {tagline && <div className="logo-tagline">{typeof tagline === 'string' ? tagline : t('logo.tagline')}</div>}
         </div>
     );
 }
@@ -150,15 +189,19 @@ function Logo({ variant, fs, tagline }: { variant: 'dark' | 'white'; fs: number;
 
 type ScoreRow = { label: string; value: number };
 
-const scoreRows: ScoreRow[] = [
-    { label: 'Onboarding', value: 76 },
-    { label: 'Adoption', value: 62 },
-    { label: 'Satisfaction', value: 70 },
-    { label: 'Retention', value: 47 },
-    { label: 'Expansion', value: 54 },
-    { label: 'GTM Strategy', value: 56 },
-    { label: 'Cross-Team Alignment', value: 74 },
-];
+const CATEGORY_KEYS = ['Onboarding', 'Adoption', 'Satisfaction', 'Retention', 'Expansion', 'GTM Strategy', 'Cross-Team Alignment'];
+
+const CATEGORY_SCORE_VALUES: Record<string, number> = {
+    Onboarding: 76,
+    Adoption: 62,
+    Satisfaction: 70,
+    Retention: 47,
+    Expansion: 54,
+    'GTM Strategy': 56,
+    'Cross-Team Alignment': 74,
+};
+
+const CATEGORY_ICONS = [IconArrow, IconBarsSmall, IconChat, IconShield, IconExpand, IconTarget, IconNodes];
 
 const toRad = (d: number) => (d * Math.PI) / 180;
 
@@ -189,34 +232,24 @@ const RADAR_LABEL_POS = [
     { left: '16.64%', top: '23.40%' },
 ];
 
-function radarPoints(rows: ScoreRow[]) {
+function radarPointCoords(rows: ScoreRow[]) {
     const rcx = 150;
     const rcy = 150;
     const rmax = 105;
     const n = rows.length;
-    return rows
-        .map((row, i) => {
-            const a = -90 + i * (360 / n);
-            const rad = toRad(a);
-            const r = rmax * (row.value / 100);
-            const x = rcx + r * Math.cos(rad);
-            const y = rcy + r * Math.sin(rad);
-            return `${x.toFixed(2)},${y.toFixed(2)}`;
-        })
-        .join(' ');
+    return rows.map((row, i) => {
+        const a = -90 + i * (360 / n);
+        const rad = toRad(a);
+        const r = rmax * (row.value / 100);
+        return { x: rcx + r * Math.cos(rad), y: rcy + r * Math.sin(rad) };
+    });
 }
 
-type MethodCategory = { name: string; description: string; icon: React.ReactNode };
+type ProblemCard = { icon: React.ReactNode; title: string; body: string };
 
-const methodCategories: MethodCategory[] = [
-    { name: 'Onboarding', description: 'Time-to-value, not just a checklist.', icon: <IconArrow /> },
-    { name: 'Adoption', description: 'Usage that actually turns into business value.', icon: <IconBarsSmall /> },
-    { name: 'Satisfaction', description: 'Signals you act on, not just track.', icon: <IconChat /> },
-    { name: 'Retention', description: 'The number that protects everything else.', icon: <IconShield /> },
-    { name: 'Expansion', description: 'Growth from the customers you already have.', icon: <IconExpand /> },
-    { name: 'GTM Strategy', description: 'The root cause most teams miss.', icon: <IconTarget /> },
-    { name: 'Cross-Team Alignment', description: 'Sales, CS, and Product, speaking the same language.', icon: <IconNodes /> },
-];
+const PROBLEM_CARD_ICONS = [IconTrendDown, IconScatter, IconBarsAsc, IconGauge, IconRepeat, IconTrendUp];
+
+type MethodCategory = { name: string; description: string; icon: React.ReactNode };
 
 type OfferStage = {
     step: number;
@@ -228,45 +261,13 @@ type OfferStage = {
     featured?: boolean;
 };
 
-const offerStages: OfferStage[] = [
-    {
-        step: 1,
-        title: 'Diagnostic',
-        duration: '2–3 weeks',
-        description: 'Get your Health & Efficiency Score, a full breakdown across all 7 categories, and a top-5 action plan ranked by impact.',
-        price: 'Starting at $5,000 CAD',
-        showPrice: true,
-    },
-    {
-        step: 2,
-        title: 'Build',
-        duration: '4–6 weeks',
-        description: 'Get an operational health score, retention playbooks, dashboards, and an onboarding process — live in your CRM, not on slides.',
-        price: 'Starting at $13,000 CAD',
-        featured: true,
-    },
-    {
-        step: 3,
-        title: 'Scale',
-        duration: 'Monthly retainer',
-        description: 'A fractional Head of CS Ops keeps the system we built from breaking as you grow — a few days a month, until it\'s ready to run on its own.',
-        price: 'Starting at $3,500 CAD / mo',
-    },
-];
-
-const whoPoints: string[] = [
-    'No Head of CS yet — or one who started in the last few months.',
-    "You sense a retention or expansion problem, but you can't put a number on it.",
-    "You'd rather build the system now than rebuild it after a bad quarter.",
+const OFFER_STAGE_META = [
+    { showPrice: true, featured: false },
+    { showPrice: false, featured: true },
+    { showPrice: false, featured: false },
 ];
 
 type FaqItem = { q: string; a: string };
-
-const faqItems: FaqItem[] = [
-    { q: "Don't we need a CRM in place first?", a: 'No — setting that up, or fixing what you already have, is part of the Build.' },
-    { q: 'How much time does this take on our side?', a: "Plan for a few hours across the Diagnostic, mostly interviews. The Build needs more from your team — we'll scope exact hours together before starting." },
-    { q: 'What happens after Ongoing Support ends?', a: "Either your team runs it independently, or a newly hired Head of CS inherits a system that's already built — not a blank page." },
-];
 
 function LiveTypeform() {
     const navigate = useNavigate();
@@ -277,11 +278,12 @@ function LiveTypeform() {
 }
 
 function HealthCheckSection({ started, onStart }: { started: boolean; onStart: () => void }) {
+    const { t } = useLanguage();
     return (
         <section id="health-check" className="wrap health-check-section">
             <div className="section-heading">
-                <div className="kicker">Free health check</div>
-                <h2>Find your Health &amp; Efficiency Score.</h2>
+                <div className="kicker">{t('healthCheck.kicker')}</div>
+                <h2>{t('healthCheck.heading')}</h2>
             </div>
             {started ? (
                 <LiveTypeform />
@@ -289,10 +291,10 @@ function HealthCheckSection({ started, onStart }: { started: boolean; onStart: (
                 <div className="typeform-welcome">
                     <div className="typeform-welcome-inner">
                         <Logo variant="white" fs={44} tagline />
-                        <h2>Find out your score before your next board meeting.</h2>
-                        <p>Free, 15 questions, five minutes, no credit card, no sales call required to see your result.</p>
+                        <h2>{t('healthCheck.welcomeHeading')}</h2>
+                        <p>{t('healthCheck.welcomeBody')}</p>
                         <button type="button" className="btn btn-primary-onDark" style={{ marginTop: 8 }} onClick={onStart}>
-                            Take the free Health Check
+                            {t('healthCheck.cta')}
                         </button>
                     </div>
                 </div>
@@ -301,12 +303,103 @@ function HealthCheckSection({ started, onStart }: { started: boolean; onStart: (
     );
 }
 
+function ProblemCarousel({ cards }: { cards: ProblemCard[] }) {
+    const { t } = useLanguage();
+    const [index, setIndex] = React.useState(0);
+
+    const goTo = (i: number) => setIndex((i + cards.length) % cards.length);
+
+    return (
+        <div className="problem-carousel">
+            <div className="problem-carousel-track">
+                {cards.map((card, i) => (
+                    <div className="card problem-card" key={card.title} style={{ display: i === index ? undefined : 'none' }}>
+                        {card.icon}
+                        <h3>{card.title}</h3>
+                        <p>{card.body}</p>
+                    </div>
+                ))}
+            </div>
+            <div className="problem-carousel-nav">
+                <button type="button" className="problem-carousel-arrow problem-carousel-arrow--prev" aria-label={t('problem.prevAria')} onClick={() => goTo(index - 1)}>
+                    <IconArrow />
+                </button>
+                <div className="problem-carousel-dots">
+                    {cards.map((card, i) => (
+                        <button
+                            type="button"
+                            key={card.title}
+                            className={`problem-carousel-dot${i === index ? ' active' : ''}`}
+                            aria-label={`${t('problem.goToAria')} ${i + 1}`}
+                            aria-current={i === index}
+                            onClick={() => goTo(i)}
+                        />
+                    ))}
+                </div>
+                <button type="button" className="problem-carousel-arrow" aria-label={t('problem.nextAria')} onClick={() => goTo(index + 1)}>
+                    <IconArrow />
+                </button>
+            </div>
+        </div>
+    );
+}
+
 /* ============================================================
    Page
    ============================================================ */
 
 export default function CScaleLandingPage() {
+    const { t } = useLanguage();
     const [healthCheckStarted, setHealthCheckStarted] = React.useState(false);
+    const [activeRadarPoint, setActiveRadarPoint] = React.useState<number | null>(null);
+
+    const categoryText = t('categories') as Record<string, { name: string; description: string }>;
+    const scoreRows: ScoreRow[] = CATEGORY_KEYS.map((key) => ({
+        label: categoryText[key].name,
+        value: CATEGORY_SCORE_VALUES[key],
+    }));
+    const methodCategories: MethodCategory[] = CATEGORY_KEYS.map((key, i) => ({
+        name: categoryText[key].name,
+        description: categoryText[key].description,
+        icon: React.createElement(CATEGORY_ICONS[i]),
+    }));
+    const problemCardsText = t('problem.cards') as { title: string; body: string }[];
+    const problemCards: ProblemCard[] = problemCardsText.map((card, i) => ({
+        ...card,
+        icon: React.createElement(PROBLEM_CARD_ICONS[i]),
+    }));
+    const offerStagesText = t('offer.stages') as { title: string; duration: string; description: string; price: string }[];
+    const offerStages: OfferStage[] = offerStagesText.map((stage, i) => ({
+        ...stage,
+        step: i + 1,
+        showPrice: OFFER_STAGE_META[i].showPrice,
+        featured: OFFER_STAGE_META[i].featured,
+    }));
+    const whoPoints = t('who.points') as string[];
+    const faqItems = t('faq.items') as FaqItem[];
+    const heroTitleLines = t('hero.titleLines') as string[];
+    const problemHeadingLines = t('problem.headingLines') as string[];
+    const offerHeadingLines = t('offer.headingLines') as string[];
+    const whoHeadingLines = t('who.headingLines') as string[];
+    const aboutParagraphs = t('about.paragraphs') as string[];
+
+    const radarPush = useRadarPush(activeRadarPoint, scoreRows.length);
+
+    const handleRadarMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const mx = ((e.clientX - rect.left) / rect.width) * 300;
+        const my = ((e.clientY - rect.top) / rect.height) * 300;
+        let nearest = 0;
+        let nearestDist = Infinity;
+        radarPointCoords(scoreRows).forEach((p, i) => {
+            const d = (p.x - mx) ** 2 + (p.y - my) ** 2;
+            if (d < nearestDist) {
+                nearestDist = d;
+                nearest = i;
+            }
+        });
+        setActiveRadarPoint(nearest);
+    };
 
     return (
         <div>
@@ -314,65 +407,66 @@ export default function CScaleLandingPage() {
             <header className="header">
                 <div className="wrap header-inner">
                     <Logo variant="dark" fs={58} />
-                    <nav className="nav">
-                        <a href="#method">Framework</a>
-                        <a href="#offer">How it works</a>
-                        <a href="#who">Who it's for</a>
-                        <a href="#faq">FAQ</a>
-                    </nav>
+                    <div className="header-inner-right">
+                        <nav className="nav">
+                            <a href="#method">{t('nav.framework')}</a>
+                            <a href="#offer">{t('nav.howItWorks')}</a>
+                            <a href="#who">{t('nav.whoItsFor')}</a>
+                            <a href="#faq">{t('nav.faq')}</a>
+                        </nav>
+                        <LanguageSwitcher />
+                    </div>
                 </div>
             </header>
 
             <div className="header-subline">
-                <div className="wrap">Customer Success Operations, built to scale</div>
+                <div className="wrap">{t('header.subline')}</div>
             </div>
 
             {/* ============ HERO ============ */}
             <section className="wrap hero">
                 <div className="hero-copy">
                     <h1>
-                        Customer Success isn't just an hire.
-                        <br />
-                        It's an entire system.
+                        {heroTitleLines[0]} <br />{heroTitleLines[1]}
                     </h1>
                     <p>
-                        CScale diagnoses, builds, and runs the CS Ops foundations for growing SaaS startups without <br>
-                        </br>the six
-                        months and the salary of a senior hire.
+                        {t('hero.body')}
                     </p>
                     <div className="hero-ctas">
-                        <a className="btn btn-primary" href="#health-check">Take the free health check</a>
-                        <div className="btn btn-secondary">Start the full diagnostic</div>
+                        <a className="btn btn-primary" href="#health-check">{t('hero.ctaPrimary')}</a>
+                        <div className="btn btn-secondary">{t('hero.ctaSecondary')}</div>
                     </div>
                     <div className="hero-facts">
                         <div className="hero-fact">
-                            <IconCheck />
-                            <p>2–3 weeks to your first Diagnostic</p>
+
+                            <p>{t('hero.fact1')}</p>
                         </div>
                         <div className="hero-fact">
-                            <IconCheck />
-                            <p>7 categories scored, not a guess</p>
+
+                            <p>{t('hero.fact2')}</p>
                         </div>
-                        <div className="hero-fact">
-                            <IconCheck />
-                            <p>No six-month contract to start</p>
-                        </div>
+
                     </div>
                 </div>
 
                 <div className="card score-card">
                     <div className="score-card-head">
-                        <div className="score-card-head-label">Health &amp; Efficiency Score</div>
-                        <div className="score-card-badge">SAMPLE RESULT</div>
+                        <div className="score-card-head-label">{t('scoreCard.label')}</div>
+                        <div className="score-card-badge">{t('scoreCard.badge')}</div>
                     </div>
                     <div className="score-value-row">
                         <div className="score-value">62</div>
-                        <div className="score-value-max">/ 100</div>
-                        <div className="score-zone">Orange zone</div>
+                        <div className="score-value-max">{t('scoreCard.outOf')}</div>
+                        <div className="score-zone">{t('scoreCard.zone')}</div>
                     </div>
                     <div className="score-divider" />
                     <div className="radar-chart">
-                        <svg viewBox="0 0 300 300" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+                        <svg
+                            viewBox="0 0 300 300"
+                            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+                            onMouseMove={handleRadarMouseMove}
+                            onMouseLeave={() => setActiveRadarPoint(null)}
+                        >
                             {RADAR_RINGS.map((points, i) => (
                                 <polygon key={i} points={points} fill="none" stroke="var(--border)" strokeWidth="1" />
                             ))}
@@ -380,13 +474,24 @@ export default function CScaleLandingPage() {
                                 <line key={i} x1="150" y1="150" x2={x} y2={y} stroke="var(--border)" strokeWidth="1" />
                             ))}
                             <polygon
-                                points={radarPoints(scoreRows)}
+                                className="radar-poly"
+                                points={radarCoordsToPoints(pushRadarCoords(radarPointCoords(scoreRows), radarPush))}
                                 fill="#B8860B"
                                 fillOpacity="0.16"
                                 stroke="#B8860B"
                                 strokeWidth="2.5"
                                 strokeLinejoin="round"
                             />
+                            {pushRadarCoords(radarPointCoords(scoreRows), radarPush).map((p: { x: number; y: number }, i: number) => (
+                                <circle
+                                    key={i}
+                                    className={`radar-dot${i === activeRadarPoint ? ' active' : ''}`}
+                                    cx={p.x}
+                                    cy={p.y}
+                                    r="4"
+                                    fill="#B8860B"
+                                />
+                            ))}
                         </svg>
                         {scoreRows.map((row, i) => (
                             <div key={row.label} className="radar-label" style={RADAR_LABEL_POS[i]}>
@@ -403,35 +508,28 @@ export default function CScaleLandingPage() {
             <section className="problem-section">
                 <div className="wrap section-pad">
                     <div className="section-heading">
-                        <div className="kicker">Sound familiar?</div>
-                        <h2>You can feel the problem. You just can't see it yet.</h2>
+                        <div className="kicker">{t('problem.kicker')}</div>
+                        <h2>{problemHeadingLines[0]} <br />{problemHeadingLines[1]}</h2>
                     </div>
                     <div className="problem-grid">
-                        <div className="card problem-card">
-                            <IconTrendUp />
-                            <h3>Customers are churning and you don't know why</h3>
-                            <p>Without a health score, every loss feels like a surprise — even when the signs were there weeks earlier.</p>
-                        </div>
-                        <div className="card problem-card">
-                            <IconClock />
-                            <h3>CS runs on instinct, not a system</h3>
-                            <p>One person — maybe you — is holding onboarding, support, and renewals together with spreadsheets and memory.</p>
-                        </div>
-                        <div className="card problem-card">
-                            <IconBarsAsc />
-                            <h3>Investors are starting to ask about NRR</h3>
-                            <p>And you don't have a confident number to give them before the next round.</p>
-                        </div>
+                        {problemCards.map((card) => (
+                            <div className="card problem-card" key={card.title}>
+                                {card.icon}
+                                <h3>{card.title}</h3>
+                                <p>{card.body}</p>
+                            </div>
+                        ))}
                     </div>
+                    <ProblemCarousel cards={problemCards} />
                 </div>
             </section>
 
             {/* ============ METHOD ============ */}
             <section id="method" className="wrap method-section">
                 <div className="section-heading">
-                    <div className="kicker">The framework</div>
-                    <h2 style={{ marginBottom: 16 }}>The Health &amp; Efficiency Score</h2>
-                    <p>50 weighted questions across 7 categories turn "something feels off" into a number — and a plan.</p>
+                    <div className="kicker">{t('method.kicker')}</div>
+                    <h2 style={{ marginBottom: 16 }}>{t('method.heading')}</h2>
+                    <p>{t('method.body')}</p>
                 </div>
                 <div className="method-grid">
                     {methodCategories.map((cat) => (
@@ -442,8 +540,8 @@ export default function CScaleLandingPage() {
                         </div>
                     ))}
                     <div className="method-summary">
-                        <div className="method-summary-title">100 points total.</div>
-                        <div className="method-summary-copy">Weighted by what actually protects ARR at your stage — not equally split.</div>
+                        <div className="method-summary-title">{t('method.summaryTitle')}</div>
+                        <div className="method-summary-copy">{t('method.summaryCopy')}</div>
                     </div>
                 </div>
             </section>
@@ -452,8 +550,8 @@ export default function CScaleLandingPage() {
             <section id="offer" className="offer-section">
                 <div className="wrap section-pad">
                     <div className="section-heading">
-                        <div className="kicker">How we work together</div>
-                        <h2>Three stages. No six-month commitment to find out if it's working.</h2>
+                        <div className="kicker">{t('offer.kicker')}</div>
+                        <h2>{offerHeadingLines[0]} <br />{offerHeadingLines[1]} <br /> {offerHeadingLines[2]}</h2>
                     </div>
                     <div className="offer-grid">
                         {offerStages.map((stage) => (
@@ -470,7 +568,7 @@ export default function CScaleLandingPage() {
                                     href={CALENDLY_URL}
                                     onClick={openCalendly}
                                 >
-                                    Request a quote
+                                    {t('offer.cta')}
                                 </a>
                             </div>
                         ))}
@@ -480,17 +578,30 @@ export default function CScaleLandingPage() {
 
             {/* ============ WHO IT'S FOR ============ */}
             <section id="who" className="wrap who-section">
-                <div>
-                    <div className="kicker" style={{ marginBottom: 14 }}>Is this you?</div>
-                    <h2>Built for SaaS startups between $1M and $10M</h2>
+                <div className="who-intro">
+                    <div className="kicker" style={{ marginBottom: 14 }}>{t('who.kicker')}</div>
+                    <h2>{whoHeadingLines[0]} <br /> {whoHeadingLines[1]}</h2>
                 </div>
                 <div className="who-list">
                     {whoPoints.map((point) => (
                         <div className="who-item" key={point}>
-                            <IconCheck />
                             <p>{point}</p>
                         </div>
                     ))}
+                </div>
+            </section>
+
+            {/* ============ ABOUT ============ */}
+            <section className="about-section">
+                <div className="wrap about-grid">
+                    <img className="about-photo" src="/1779646966328.jpg" alt="Founder of CScale" />
+                    <div className="about-copy">
+                        <div className="kicker">{t('about.kicker')}</div>
+                        <h2>{t('about.heading')}</h2>
+                        {aboutParagraphs.map((paragraph) => (
+                            <p key={paragraph}>{paragraph}</p>
+                        ))}
+                    </div>
                 </div>
             </section>
 
@@ -525,15 +636,15 @@ export default function CScaleLandingPage() {
             <section className="cta-banner">
                 <div className="wrap cta-banner-inner">
                     <Logo variant="white" fs={44} tagline />
-                    <h2>Find out your score before your next board meeting.</h2>
-                    <p>Free, 15 questions, five minutes, no credit card, no sales call required to see your result.</p>
+                    <h2>{t('ctaBanner.heading')}</h2>
+                    <p>{t('ctaBanner.body')}</p>
                     <a
                         className="btn btn-primary-onDark"
                         href="#health-check"
                         style={{ marginTop: 8 }}
                         onClick={() => setHealthCheckStarted(true)}
                     >
-                        Take the free Health Check
+                        {t('ctaBanner.cta')}
                     </a>
                 </div>
             </section>
@@ -541,8 +652,8 @@ export default function CScaleLandingPage() {
             {/* ============ FAQ ============ */}
             <section id="faq" className="wrap faq-section">
                 <div className="section-heading" style={{ maxWidth: 640, marginBottom: 48 }}>
-                    <div className="kicker">Questions</div>
-                    <h2>Before you book a call</h2>
+                    <div className="kicker">{t('faq.kicker')}</div>
+                    <h2>{t('faq.heading')}</h2>
                 </div>
                 <div className="faq-list">
                     {faqItems.map((item) => (
@@ -559,15 +670,15 @@ export default function CScaleLandingPage() {
                 <div className="wrap footer-top">
                     <Logo variant="white" fs={32} />
                     <div className="footer-links">
-                        <a href="#method">Framework</a>
-                        <a href="#offer">How it works</a>
-                        <a href="#faq">FAQ</a>
-                        <a href="#">LinkedIn</a>
+                        <a href="#method">{t('nav.framework')}</a>
+                        <a href="#offer">{t('nav.howItWorks')}</a>
+                        <a href="#faq">{t('nav.faq')}</a>
+                        <a href="#">{t('nav.linkedin')}</a>
                     </div>
                 </div>
                 <div className="wrap footer-bottom">
                     <div className="footer-rule" />
-                    <p className="footer-copy">© 2026 CScale. All rights reserved.</p>
+                    <p className="footer-copy">{t('footer.copy')}</p>
                 </div>
             </footer>
         </div>

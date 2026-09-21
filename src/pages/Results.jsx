@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { CALENDLY_URL, openCalendly } from '../lib/calendly'
+import { useRadarPush, pushRadarCoords, radarCoordsToPoints } from '../lib/radar'
+import { useLanguage } from '../lib/i18n.jsx'
+import LanguageSwitcher from '../components/LanguageSwitcher.jsx'
 
 // The Typeform webhook (netlify/functions/webhook.js) writes the row a moment
 // after submit, so we poll a few times before giving up.
@@ -8,42 +11,10 @@ const MAX_ATTEMPTS = 8
 const RETRY_DELAY_MS = 1500
 
 const ZONES = {
-    red: {
-        min: 0,
-        max: 34,
-        label: 'Red zone',
-        color: '#C0483D',
-        tint: '#F8EAE8',
-        headline: "You're running Customer Success on hope.",
-        cta: 'Book a call this week',
-    },
-    orange: {
-        min: 35,
-        max: 54,
-        label: 'Orange zone',
-        color: '#C97A2E',
-        tint: '#FBF0E3',
-        headline: "The basics exist. The system doesn't - yet.",
-        cta: 'Book a 30-minute call',
-    },
-    yellow: {
-        min: 55,
-        max: 74,
-        label: 'Yellow zone',
-        color: '#B6912B',
-        tint: '#FAF4E1',
-        headline: "You're doing more right than wrong.",
-        cta: 'See what the Build fixes',
-    },
-    green: {
-        min: 75,
-        max: 100,
-        label: 'Green zone',
-        color: '#1F8F6F',
-        tint: '#E7F4EF',
-        headline: "You've built what most startups still hire for.",
-        cta: 'See what Ongoing Support looks like',
-    },
+    red: { key: 'red', min: 0, max: 34, color: '#C0483D', tint: '#F8EAE8' },
+    orange: { key: 'orange', min: 35, max: 54, color: '#C97A2E', tint: '#FBF0E3' },
+    yellow: { key: 'yellow', min: 55, max: 74, color: '#B6912B', tint: '#FAF4E1' },
+    green: { key: 'green', min: 75, max: 100, color: '#1F8F6F', tint: '#E7F4EF' },
 }
 
 const DEFAULT_CATEGORIES = [
@@ -101,22 +72,17 @@ function gaugeFillPath(score) {
     return `M${gs.x.toFixed(2)},${gs.y.toFixed(2)} A${gr},${gr} 0 ${largeArc} 1 ${ge.x.toFixed(2)},${ge.y.toFixed(2)}`
 }
 
-function radarPoints(categories) {
+function radarPointCoords(categories) {
     const rcx = 150
     const rcy = 150
     const rmax = 105
     const n = categories.length
-    const radarPoint = (r, i) => {
+    return categories.map((c, i) => {
         const a = -90 + i * (360 / n)
         const rad = toRad(a)
+        const r = rmax * (c.value / 100)
         return { x: rcx + r * Math.cos(rad), y: rcy + r * Math.sin(rad) }
-    }
-    return categories
-        .map((c, i) => {
-            const p = radarPoint(rmax * (c.value / 100), i)
-            return `${p.x.toFixed(2)},${p.y.toFixed(2)}`
-        })
-        .join(' ')
+    })
 }
 
 function getZone(score) {
@@ -188,10 +154,14 @@ function Logo({ variant, fs }) {
 }
 
 function Results() {
+    const { t } = useLanguage()
     const [searchParams] = useSearchParams()
     const responseId = searchParams.get('rid')
     const [result, setResult] = useState(null)
     const [status, setStatus] = useState('loading') // loading | not-found | error | ready
+    const [activeRadarPoint, setActiveRadarPoint] = useState(null)
+    const radarPush = useRadarPush(activeRadarPoint, 7)
+    const categoryLabel = (name) => t('categories')[name]?.name || name
 
     useEffect(() => {
         if (!responseId) {
@@ -239,9 +209,9 @@ function Results() {
         return (
             <main className="results-page">
                 <div className="results-shell">
-                    <p className="kicker">Health &amp; Efficiency Score</p>
-                    <h1>Crunching your answers...</h1>
-                    <p className="results-lede">Your results are being prepared. This usually takes a few seconds.</p>
+                    <p className="kicker">{t('results.loadingKicker')}</p>
+                    <h1>{t('results.loadingHeading')}</h1>
+                    <p className="results-lede">{t('results.loadingBody')}</p>
                     <div className="results-loader" aria-hidden="true" />
                 </div>
             </main>
@@ -252,10 +222,10 @@ function Results() {
         return (
             <main className="results-page">
                 <div className="results-shell results-message">
-                    <p className="kicker">Health &amp; Efficiency Score</p>
-                    <h1>Your result is almost ready.</h1>
-                    <p className="results-lede">We couldn't find this submission yet. Wait a few seconds, then refresh the page.</p>
-                    <button className="btn btn-primary" type="button" onClick={() => window.location.reload()}>Refresh result</button>
+                    <p className="kicker">{t('results.loadingKicker')}</p>
+                    <h1>{t('results.notFoundHeading')}</h1>
+                    <p className="results-lede">{t('results.notFoundBody')}</p>
+                    <button className="btn btn-primary" type="button" onClick={() => window.location.reload()}>{t('results.notFoundCta')}</button>
                 </div>
             </main>
         )
@@ -265,10 +235,10 @@ function Results() {
         return (
             <main className="results-page">
                 <div className="results-shell results-message">
-                    <p className="kicker">Health &amp; Efficiency Score</p>
-                    <h1>We hit a snag.</h1>
-                    <p className="results-lede">Something went wrong loading your result. Please try refreshing the page.</p>
-                    <button className="btn btn-primary" type="button" onClick={() => window.location.reload()}>Try again</button>
+                    <p className="kicker">{t('results.loadingKicker')}</p>
+                    <h1>{t('results.errorHeading')}</h1>
+                    <p className="results-lede">{t('results.errorBody')}</p>
+                    <button className="btn btn-primary" type="button" onClick={() => window.location.reload()}>{t('results.errorCta')}</button>
                 </div>
             </main>
         )
@@ -276,41 +246,60 @@ function Results() {
 
     const answers = result?.answers && typeof result.answers === 'object' ? Object.entries(result.answers) : []
     const score = normalizeScore(result?.score)
-    const zone = getZone(score)
+    const baseZone = getZone(score)
+    const zone = { ...baseZone, ...t('zones')[baseZone.key] }
     const categories = normalizeCategories(score, result?.categories)
+
+    const handleRadarMouseMove = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect()
+        const mx = ((e.clientX - rect.left) / rect.width) * 300
+        const my = ((e.clientY - rect.top) / rect.height) * 300
+        let nearest = 0
+        let nearestDist = Infinity
+        radarPointCoords(categories).forEach((p, i) => {
+            const d = (p.x - mx) ** 2 + (p.y - my) ** 2
+            if (d < nearestDist) {
+                nearestDist = d
+                nearest = i
+            }
+        })
+        setActiveRadarPoint(nearest)
+    }
+
     const sorted = categories.slice().sort((a, b) => b.value - a.value)
     const strongest = sorted[0]
     const weakest = sorted[sorted.length - 1]
     const headline = result?.headline || zone.headline
-    const summary = result?.summary || 'Your assessment is ready.'
+    const summary = result?.summary || t('results.defaultSummary')
 
     return (
         <main style={{ background: 'var(--paper)', minHeight: '100%' }}>
             <div style={{ background: 'var(--white)', borderBottom: '1px solid var(--border)' }}>
-                <div className="wrap" style={{ display: 'flex', alignItems: 'center', height: 76 }}>
+                <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 76 }}>
                     <Logo variant="dark" fs={26} />
+                    <LanguageSwitcher />
                 </div>
             </div>
 
             <section className="wrap result-hero">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-                    <div className="kicker">Your result</div>
+                    <div className="kicker">{t('results.yourResult')}</div>
                     <h1 style={{ fontSize: 38, lineHeight: 1.18 }}>{headline}</h1>
                     <p style={{ fontSize: 17, lineHeight: 1.6, color: 'var(--grey)', maxWidth: '56ch' }}>{summary}</p>
                     <div style={{ marginTop: 6 }}>
                         <a className="btn btn-primary" href={CALENDLY_URL} onClick={openCalendly}>{zone.cta}</a>
                     </div>
                     <p style={{ fontSize: 13, color: 'var(--grey-light)' }}>
-                        This preview is based on 15 of the full 50-question Diagnostic —{' '}
-                        <a href={CALENDLY_URL} onClick={openCalendly}>book a call</a> with me for the complete picture.
+                        {t('results.footnotePrefix')}{' '}
+                        <a href={CALENDLY_URL} onClick={openCalendly}>{t('results.footnoteLink')}</a> {t('results.footnoteSuffix')}
                     </p>
                 </div>
 
                 <div className="card gauge-card">
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--grey)' }}>Health &amp; Efficiency Score</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--grey)' }}>{t('results.scoreLabel')}</div>
                         <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--green-deep)', background: 'var(--green-light)', padding: '5px 10px', borderRadius: 6 }}>
-                            ASSESSMENT RESULT
+                            {t('results.assessmentResult')}
                         </div>
                     </div>
                     <div className="gauge-chart">
@@ -319,7 +308,7 @@ function Results() {
                             <path d={gaugeFillPath(score)} fill="none" stroke={zone.color} strokeWidth="22" strokeLinecap="round" />
                         </svg>
                         <div className="gauge-score">{score}</div>
-                        <div className="gauge-outof">out of 100</div>
+                        <div className="gauge-outof">{t('results.outOf100')}</div>
                     </div>
                     <div className="zone-badge" style={{ background: zone.tint, color: zone.color }}>
                         {result?.scoreLabel || zone.label}
@@ -330,12 +319,17 @@ function Results() {
             <section style={{ background: 'var(--white)', borderTop: '1px solid var(--border)' }}>
                 <div className="wrap radar-section">
                     <div className="card">
-                        <h3 style={{ fontSize: 17, marginBottom: 4 }}>Your 7-category breakdown</h3>
+                        <h3 style={{ fontSize: 17, marginBottom: 4 }}>{t('results.breakdownHeading')}</h3>
                         <p style={{ fontSize: 14, color: 'var(--grey)', marginBottom: 8 }}>
-                            Each axis is one category of the Health &amp; Efficiency Score, out of 100.
+                            {t('results.breakdownBody')}
                         </p>
                         <div className="radar-chart">
-                            <svg viewBox="0 0 300 300" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+                            <svg
+                                viewBox="0 0 300 300"
+                                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+                                onMouseMove={handleRadarMouseMove}
+                                onMouseLeave={() => setActiveRadarPoint(null)}
+                            >
                                 {RADAR_RINGS.map((points, i) => (
                                     <polygon key={i} points={points} fill="none" stroke="var(--border)" strokeWidth="1" />
                                 ))}
@@ -343,17 +337,28 @@ function Results() {
                                     <line key={i} x1="150" y1="150" x2={x} y2={y} stroke="var(--border)" strokeWidth="1" />
                                 ))}
                                 <polygon
-                                    points={radarPoints(categories)}
+                                    className="radar-poly"
+                                    points={radarCoordsToPoints(pushRadarCoords(radarPointCoords(categories), radarPush))}
                                     fill={zone.color}
                                     fillOpacity="0.16"
                                     stroke={zone.color}
                                     strokeWidth="2.5"
                                     strokeLinejoin="round"
                                 />
+                                {pushRadarCoords(radarPointCoords(categories), radarPush).map((p, i) => (
+                                    <circle
+                                        key={i}
+                                        className={`radar-dot${i === activeRadarPoint ? ' active' : ''}`}
+                                        cx={p.x}
+                                        cy={p.y}
+                                        r="4"
+                                        fill={zone.color}
+                                    />
+                                ))}
                             </svg>
                             {categories.map((c, i) => (
                                 <div key={c.name} className="radar-label" style={RADAR_LABEL_POS[i]}>
-                                    {c.name} - {c.value}
+                                    {categoryLabel(c.name)} - {c.value}
                                 </div>
                             ))}
                         </div>
@@ -361,23 +366,23 @@ function Results() {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                         <div className="card">
-                            <div className="kicker" style={{ marginBottom: 10 }}>Strongest area</div>
+                            <div className="kicker" style={{ marginBottom: 10 }}>{t('results.strongest')}</div>
                             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
-                                <h3 style={{ fontSize: 20 }}>{strongest.name}</h3>
+                                <h3 style={{ fontSize: 20 }}>{categoryLabel(strongest.name)}</h3>
                                 <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--grey-light)' }}>{strongest.value}/100</div>
                             </div>
                             <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--grey)' }}>
-                                This is the category doing the most to protect your score right now - keep it that way as you grow.
+                                {t('results.strongestBody')}
                             </p>
                         </div>
                         <div className="card">
-                            <div className="kicker" style={{ marginBottom: 10 }}>Biggest opportunity</div>
+                            <div className="kicker" style={{ marginBottom: 10 }}>{t('results.weakest')}</div>
                             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 8 }}>
-                                <h3 style={{ fontSize: 20 }}>{weakest.name}</h3>
+                                <h3 style={{ fontSize: 20 }}>{categoryLabel(weakest.name)}</h3>
                                 <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--grey-light)' }}>{weakest.value}/100</div>
                             </div>
                             <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--grey)' }}>
-                                The single fastest place to move your overall score - this is usually where the Diagnostic starts.
+                                {t('results.weakestBody')}
                             </p>
                         </div>
                     </div>
@@ -389,19 +394,19 @@ function Results() {
                     <div className="results-shell">
                         <section className="results-answers" style={{ marginTop: 24 }}>
                             <div className="results-section-heading">
-                                <p className="kicker">Your responses</p>
-                                <h2>What you told us</h2>
+                                <p className="kicker">{t('results.yourResponses')}</p>
+                                <h2>{t('results.whatYouToldUs')}</h2>
                             </div>
                             <div className="results-answer-list">
                                 {answers.map(([question, answer]) => (
                                     <div className="results-answer card" key={question}>
                                         <h3>{question}</h3>
-                                        <p>{typeof answer === 'boolean' ? (answer ? 'Yes' : 'No') : String(answer)}</p>
+                                        <p>{typeof answer === 'boolean' ? (answer ? t('results.yes') : t('results.no')) : String(answer)}</p>
                                     </div>
                                 ))}
                             </div>
                         </section>
-                        <a className="btn btn-secondary" href="/">Back to CScale</a>
+                        <a className="btn btn-secondary" href="/">{t('results.backToCScale')}</a>
                     </div>
                 </section>
             )}
@@ -409,7 +414,7 @@ function Results() {
             <footer style={{ background: 'var(--navy)' }}>
                 <div className="wrap" style={{ paddingTop: 40, paddingBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
                     <Logo variant="white" fs={22} />
-                    <p style={{ fontSize: 13, color: 'var(--grey-light)' }}>Copyright 2026 CScale. All rights reserved.</p>
+                    <p style={{ fontSize: 13, color: 'var(--grey-light)' }}>{t('results.footerCopy')}</p>
                 </div>
             </footer>
         </main>
