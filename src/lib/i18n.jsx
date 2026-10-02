@@ -10,12 +10,11 @@ export const translations = {
             whoItsFor: "Who it's for",
             faq: 'FAQ',
             linkedin: 'LinkedIn',
+            menuOpen: 'Open menu',
+            menuClose: 'Close menu',
         },
         logo: {
             tagline: 'Customer Success, built to scale',
-        },
-        header: {
-            subline: 'Customer Success Operations, built to scale',
         },
         hero: {
             titleLines: [
@@ -26,7 +25,8 @@ export const translations = {
             ctaPrimary: 'Take the free health check',
             ctaSecondary: 'Start the full diagnostic',
             fact1: 'It starts with a diagnosis across 7 key areas of your organization. CScale identifies the priorities that are costing you time, money, and customers.',
-            fact2: 'From there, we turn those insights into action. Building the processes, workflows, tools, and operating structure needed to make Customer Success more efficient, predictable, and scalable. Less guesswork. Clear priorities. Faster impact.',
+            fact2: 'From there, we turn those insights into action. Building the processes, workflows, tools, and operating structure needed to make Customer Success more efficient, predictable, and scalable.',
+            fact3: 'Less guesswork. Clear priorities. Faster impact.',
         },
         scoreCard: {
             label: 'Health & Efficiency Score',
@@ -197,55 +197,55 @@ export const translations = {
     },
     fr: {
         nav: {
-            framework: 'Méthodologie',
+            framework: 'Méthode',
             howItWorks: 'Comment ça marche',
             whoItsFor: 'Pour qui',
             faq: 'FAQ',
             linkedin: 'LinkedIn',
+            menuOpen: 'Ouvrir le menu',
+            menuClose: 'Fermer le menu',
         },
         logo: {
             tagline: 'Le Customer Success, conçu pour grandir',
         },
-        header: {
-            subline: 'Des opérations Customer Success conçues pour grandir',
-        },
         hero: {
             titleLines: [
-                "La rétention n'est pas seulement un enjeu du Customer Success.",
-                "C'est un système à l'échelle de l'entreprise, ancré dans chaque étape du parcours client.",
+                "La rétention ne repose pas uniquement sur le Customer Success.",
+                "Elle se joue à chaque étape du parcours client, et est le résultat d'une organisation globale.",
             ],
-            body: "CScale diagnostique, construit et fait tourner les fondations des opérations CS pour les startups en croissance, sans les six mois d'attente ni le coût d'une embauche senior.",
-            ctaPrimary: 'Faire le bilan de santé gratuit',
+            body: "CScale diagnostique, construit et pilote vos opérations Customer Success. L'expertise d'un profil senior, sans les délais ni le coût d'un recrutement.",
+            ctaPrimary: 'Diagnostic gratuit',
             ctaSecondary: 'Démarrer le diagnostic complet',
-            fact1: "Tout commence par un diagnostic couvrant 7 domaines clés de votre organisation. CScale identifie les priorités qui vous coûtent du temps, de l'argent et des clients.",
-            fact2: "Ensuite, nous transformons ces constats en actions concrètes : processus, workflows, outils et structure opérationnelle, pour rendre le Customer Success plus efficace, prévisible et évolutif. Moins de tâtonnements. Des priorités claires. Un impact plus rapide.",
+            fact1: "Un diagnostic couvrant 7 catégories clés de votre organisation. CScale identifie les priorités qui vous coûtent du temps, de l'argent et des clients.",
+            fact2: "Nous transformons les constats en actions concrètes : processus, workflows, outils et structure opérationnelle, pour rendre le CS plus efficace, proactif, et impactant dans le temps.",
+            fact3: "Moins d'approximatif. Des priorités claires. Un impact rapide.",
         },
         scoreCard: {
-            label: "Score de santé et d'efficacité",
-            badge: 'RÉSULTAT EXEMPLE',
+            label: "Score de performance",
+            badge: 'EXEMPLE DE RÉSULTAT',
             outOf: '/ 100',
             zone: 'Zone orange',
         },
         healthCheck: {
-            kicker: 'Bilan de santé gratuit',
-            heading: "Découvrez votre score de santé et d'efficacité.",
-            welcomeHeading: 'Découvrez votre score avant votre prochain comité stratégique.',
-            welcomeBody: '15 questions, environ cinq minutes. Gratuit, sans carte de crédit, sans appel commercial.',
-            cta: 'Faire le bilan de santé gratuit',
+            kicker: 'Diagnostic gratuit',
+            heading: "Découvrez votre score de performance",
+            welcomeHeading: 'Découvrez votre score avant votre prochain board meeting',
+            welcomeBody: '15 questions, environ cinq minutes. Gratuit, sans carte de crédit, sans engagement commercial.',
+            cta: 'Lancer le diagnostic gratuit',
         },
         problem: {
-            kicker: 'Ça vous parle ?',
-            headingLines: ['Vous sentez le problème.', 'Mais vous ne savez pas par où commencer.'],
+            kicker: 'Cela vous semble familier?',
+            headingLines: ['Vous sentez qu\'il y a un problème,', 'mais vous ne savez pas par où commencer.'],
             prevAria: 'Problème précédent',
             nextAria: 'Problème suivant',
             goToAria: 'Aller au problème',
             cards: [
                 {
                     title: 'Vos clients partent et vous ne savez pas pourquoi',
-                    body: "Vous subissez le churn au lieu de l'anticiper. Les signaux d'alerte étaient là. Vous n'aviez simplement aucun moyen de les voir assez tôt.",
+                    body: "Vous subissez le churn au lieu de l'anticiper. Les signaux d'alerte étaient là. Vous ne saviez simplement pas où regarder ni quand vérifier.",
                 },
                 {
-                    title: "Le CS fonctionne à l'instinct, pas comme un système",
+                    title: "Le CS fonctionne à l'instinct et n'est pas standardisé",
                     body: "Onboarding, support, renouvellements et suivis tiennent grâce à des tableurs, des outils épars et de la mémoire (peut-être la vôtre). Ça marche, jusqu'au jour où ça ne marche plus.",
                 },
                 {
@@ -268,42 +268,42 @@ export const translations = {
         },
         method: {
             kicker: 'La méthodologie',
-            heading: "Le score de santé et d'efficacité",
-            body: "50 questions pondérées réparties sur 7 catégories. Le résultat : un score réel, et un plan pour savoir quoi corriger en premier.",
+            heading: "Le score de performance",
+            body: "50 questions pondérées réparties sur 7 catégories. Le résultat : un score concret, et un plan pour comprendre les actions à prioriser.",
             summaryTitle: '100 points au total.',
-            summaryCopy: "Les catégories ne sont pas pondérées de façon égale. Chacune est notée selon ce qu'elle protège de votre ARR à votre stade.",
+            summaryCopy: "Les catégories ne sont pas pondérées de façon égale. Chacune est notée selon ce qu'elle protège de votre ARR selon votre taille.",
         },
         offer: {
             kicker: 'Comment nous travaillons ensemble',
-            headingLines: ['Trois étapes.', 'Aucun engagement de six mois', 'pour savoir si ça fonctionne.'],
+            headingLines: ['Trois étapes.', 'Engagement flexible.'],
             cta: 'Demander un devis',
             stages: [
                 {
                     title: 'Diagnostic',
                     duration: '2 à 3 semaines',
-                    description: "Obtenez votre score de santé et d'efficacité, une analyse complète des 7 catégories, et un plan d'action des 5 priorités classées par impact.",
+                    description: "Obtenez votre score de santé et d'efficacité, une analyse complète des 7 catégories, et un plan de vos actions prioritaires classées par impact.",
                     price: 'À partir de 5 000 $ CAD',
                 },
                 {
                     title: 'Construction',
                     duration: '8 à 12 semaines',
-                    description: "Obtenez une évaluation complète de la santé de votre CS, un plan d'action priorisé, ainsi que des processus et playbooks clairs, conçus pour s'intégrer à votre quotidien.",
+                    description: "Obtenez une évaluation complète de votre département CS, un plan d'action détaillé, ainsi que des processus et playbooks clairs, conçus pour s'intégrer à votre quotidien.",
                     price: 'À partir de 13 000 $ CAD',
                 },
                 {
                     title: 'Scale',
                     duration: 'Mandat mensuel',
-                    description: "Un Head of CS Ops à temps partagé maintient votre opération Customer Success en mouvement à mesure que vous grandissez, en apportant orientation stratégique et optimisation continue quelques jours par mois, jusqu'à ce que votre équipe soit prête à prendre le relais.",
+                    description: "Un Head of CS à temps partiel maintient vos opérations Customer Success en mouvement à mesure que vous grandissez, en apportant orientation stratégique et optimisation continue quelques jours par mois, jusqu'à ce que votre équipe soit prête à prendre le relais.",
                     price: 'À partir de 3 500 $ CAD / mois',
                 },
             ],
         },
         who: {
-            kicker: "C'est vous ?",
-            headingLines: ['Conçu pour les startups entre', '1 M$ et 10 M$'],
+            kicker: "Vous vous reconnaissez ?",
+            headingLines: ['Conçu pour les startups à forte croissance, générant entre 1 M$ et 10 M$ de revenus.'],
             points: [
                 "Vous grandissez. Votre opération CS n'est pas prête à suivre le rythme.",
-                "Vous êtes entre 1 M$ et 10 M$ d'ARR.",
+                "Vous générez entre 1 M$ et 10 M$ d'ARR.",
                 "Vous n'avez pas encore de Head of CS, ou vous venez tout juste d'en embaucher un.",
                 "Vous savez qu'il y a un problème de rétention ou d'expansion, mais vous ne savez pas exactement où il commence.",
             ],
@@ -312,8 +312,8 @@ export const translations = {
             kicker: 'La fondatrice',
             heading: 'La personne derrière CScale',
             paragraphs: [
-                "J'ai passé les 12 dernières années à construire et à faire grandir des opérations Customer Success dans des entreprises Tech, SaaS et IA, en Europe et en Amérique du Nord.",
-                "J'ai bâti des fonctions CS depuis zéro, fait grandir des équipes et des opérations, et travaillé sur l'onboarding, l'adoption, la rétention, l'expansion, les CS Ops et la stratégie transverse. En chemin, j'ai travaillé en étroite collaboration avec des PDG pour porter la transformation business, l'excellence opérationnelle et une croissance de revenus durable.",
+                "J'ai passé les 12 dernières années à construire et à faire croître des départements Customer Success dans des entreprises Tech, SaaS et IA, en Europe et en Amérique du Nord.",
+                "J'ai bâti des fonctions CS depuis zéro, fait grandir des équipes et des opérations, en travaillant sur l'onboarding, l'adoption, la rétention, l'expansion, comme les opérations et stratégies transverses. En chemin, j'ai travaillé en étroite collaboration avec des PDG pour porter la transformation business, l'excellence opérationnelle et une croissance de revenus durable, pour les aider à transformer des visions stratégiques en plans d'éxecution clairs.",
                 "J'ai créé CScale pour mettre cette expérience terrain au service des entreprises SaaS en croissance qui veulent transformer leur opération Customer Success en une fonction saine, efficace et évolutive, sans avoir à tout réinventer seules.",
             ],
         },
@@ -326,14 +326,14 @@ export const translations = {
             kicker: 'Questions',
             heading: 'Avant de réserver un appel',
             items: [
-                { q: "N'avons-nous pas besoin d'un CRM en place d'abord ?", a: 'Non. Le mettre en place, ou corriger celui que vous avez déjà, fait partie de la phase Construction.' },
+                { q: "N'avons-nous pas besoin d'un CRM en place d'abord ?", a: 'Non. Le mettre en place, ou corriger celui que vous avez déjà, fait partie de la phase de Construction.' },
                 {
                     q: 'Combien de temps cela demande-t-il de notre côté ?',
-                    a: "Prévoyez quelques heures pendant le Diagnostic, principalement des entretiens. La Construction demande plus de temps à votre équipe, et nous définirons ensemble le nombre d'heures exact avant de démarrer.",
+                    a: "Prévoyez quelques heures pendant le Diagnostic, principalement la disponibilité de vos équipes pour effectuer des entretiens. La Construction demande plus de temps à votre équipe, et nous définirons ensemble le nombre d'heures exact avant de démarrer.",
                 },
                 {
                     q: "Que se passe-t-il une fois l'accompagnement continu terminé ?",
-                    a: "Soit votre équipe prend le relais seule, soit un nouveau Head of CS récemment embauché reprend un système déjà construit et opérationnel.",
+                    a: "Cela est à définir ensemble mais les possibilités sont multiples. Soit votre équipe prend le relais seule, soit un nouveau Head of CS récemment embauché reprend un système déjà construit et opérationnel.",
                 },
             ],
         },
@@ -391,7 +391,7 @@ export const translations = {
 
 const defaultContextValue = {
     lang: 'fr',
-    setLang: () => {},
+    setLang: () => { },
     t: (path) => path,
 };
 

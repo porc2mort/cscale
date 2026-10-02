@@ -434,37 +434,73 @@ p {
 }
 
 /* ============ HEADER ============ */
+/* Registered so the logo's --fs-based sizes animate when the header condenses. */
+@property --fs {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 16px;
+}
+
 .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--white);
     border-bottom: 1px solid var(--border);
+    transition: box-shadow .25s ease;
+}
+
+.header.is-scrolled {
+    box-shadow: 0 6px 24px rgba(22, 35, 58, .08);
 }
 
 .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 88px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    transition: padding .25s ease;
+}
+
+.header.is-scrolled .header-inner {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/* !important beats the inline --fs set by <Logo fs>. */
+.header .logo {
+    --fs: 58px !important;
+    transition: --fs .25s ease;
+}
+
+.header.is-scrolled .logo {
+    --fs: 36px !important;
+}
+
+.header .logo-tagline {
+    max-height: 2em;
+    overflow: hidden;
+    transition: opacity .2s ease, max-height .25s ease, margin-top .25s ease;
+}
+
+.header.is-scrolled .logo-tagline {
+    opacity: 0;
+    max-height: 0;
+    margin-top: 0;
+}
+
+/* The fixed header would otherwise cover the top of each anchored section. */
+section[id] {
+    scroll-margin-top: 80px;
 }
 
 .header-inner-right {
     display: flex;
     align-items: center;
     gap: 28px;
-}
-
-.header-subline {
-    background: var(--green-light);
-    border-bottom: 1px solid var(--border);
-}
-
-.header-subline .wrap {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    text-align: left;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--green-deep);
 }
 
 .nav {
@@ -477,6 +513,46 @@ p {
     font-size: 15px;
     font-weight: 500;
     color: var(--navy);
+}
+
+/* ============ MOBILE MENU ============ */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    padding: 0 9px;
+    border: none;
+    border-radius: 8px;
+    background: none;
+    cursor: pointer;
+}
+
+.menu-toggle span {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--navy);
+    transition: transform .25s ease, opacity .2s ease;
+}
+
+/* Bars morph into an X: 7px = bar height + gap. */
+.menu-toggle.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.menu-toggle.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+.mobile-nav {
+    display: none;
 }
 
 /* ============ LANGUAGE SWITCHER ============ */
@@ -974,6 +1050,10 @@ p {
     width: 100%;
 }
 
+.offer-cta-mobile {
+    display: none;
+}
+
 /* ============ WHO IT'S FOR ============ */
 .who-section {
     padding-top: 96px;
@@ -1064,6 +1144,16 @@ p {
     font-size: 17px;
     line-height: 1.65;
     color: var(--grey);
+}
+
+.about-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.about-photo-inline {
+    display: none;
 }
 
 /* ============ PROOF ============ */
@@ -1285,6 +1375,63 @@ p {
     .nav {
         display: none;
     }
+
+    .header-inner-right {
+        gap: 12px;
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+
+    /* Drops down from the bottom of the fixed header. */
+    .mobile-nav {
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 16px 32px -16px rgba(22, 35, 58, .18);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: opacity .2s ease, transform .2s ease, visibility .2s;
+    }
+
+    .mobile-nav.open {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+    }
+
+    .mobile-nav .wrap {
+        display: flex;
+        flex-direction: column;
+        padding-top: 8px;
+        padding-bottom: 16px;
+    }
+
+    .mobile-nav a {
+        padding: 14px 0;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--navy);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .mobile-nav a:last-child {
+        border-bottom: none;
+    }
+
+    .header .logo {
+        --fs: 40px !important;
+    }
+
+    .header.is-scrolled .logo {
+        --fs: 30px !important;
+    }
 }
 
 @media (max-width: 640px) {
@@ -1295,9 +1442,220 @@ p {
     .problem-carousel {
         display: block;
     }
+
+    /* Icon sits inline with the title; body text spans the full width below. */
+    .problem-carousel-track .problem-card {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 12px;
+        align-items: center;
+        align-content: start;
+        padding: 24px;
+    }
+
+    .problem-carousel-track .problem-card svg {
+        margin-bottom: 0;
+    }
+
+    .problem-carousel-track .problem-card h3 {
+        margin: 0;
+    }
+
+    .problem-carousel-track .problem-card p {
+        grid-column: 1 / -1;
+        margin: 12px 0 0;
+    }
+
+    /* Offer: cards become a numbered vertical timeline (steps are sequential, not tiers). */
+    .offer-grid {
+        gap: 0;
+    }
+
+    .offer-card,
+    .offer-card.featured {
+        position: relative;
+        display: grid;
+        grid-template-columns: 36px 1fr;
+        column-gap: 16px;
+        background: none;
+        border: none;
+        border-radius: 0;
+        padding: 0 0 28px;
+    }
+
+    .offer-card:last-child {
+        padding-bottom: 0;
+    }
+
+    .offer-card:not(:last-child)::before {
+        content: '';
+        position: absolute;
+        left: 17px;
+        top: 36px;
+        bottom: 0;
+        width: 2px;
+        background: var(--green-light);
+    }
+
+    .offer-card > * {
+        grid-column: 2;
+    }
+
+    .offer-step {
+        grid-column: 1;
+        grid-row: 1 / span 4;
+        margin-bottom: 0;
+    }
+
+    .offer-card h3,
+    .offer-card.featured h3 {
+        margin: 0;
+        line-height: 36px;
+        color: var(--navy);
+    }
+
+    .offer-duration {
+        margin-bottom: 10px;
+    }
+
+    .offer-desc,
+    .offer-card.featured .offer-desc {
+        margin-bottom: 12px;
+        color: var(--grey);
+    }
+
+    .offer-price,
+    .offer-card.featured .offer-price {
+        border-top: none;
+        padding-top: 0;
+        font-size: 14px;
+        color: var(--navy);
+    }
+
+    .offer-card .offer-cta {
+        display: none;
+    }
+
+    .offer-cta-mobile {
+        display: flex;
+        width: 100%;
+        margin-top: 32px;
+    }
+
+    /* About: swap the large photo for a small one the text wraps around. */
+    .about-photo {
+        display: none;
+    }
+
+    .about-body {
+        display: block;
+    }
+
+    /* Only the first paragraph wraps beside the photo; the rest start below it. */
+    .about-body p + p {
+        clear: left;
+        margin-top: 18px;
+    }
+
+    .about-photo-inline {
+        display: block;
+        float: left;
+        width: 156px;
+        aspect-ratio: 4 / 5;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        margin: 6px 16px 18px 0;
+    }
+
+    /* Same inline icon + title layout as the problem cards. */
+    .method-card {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 10px;
+        align-items: center;
+        align-content: start;
+        padding: 20px;
+    }
+
+    .method-card svg {
+        margin-bottom: 0;
+    }
+
+    .method-card h3 {
+        margin: 0;
+    }
+
+    .method-card p {
+        grid-column: 1 / -1;
+        margin: 10px 0 0;
+    }
 }
 
 @media (max-width: 600px) {
+    /* Side padding only: a `padding` shorthand would wipe vertical padding on .wrap elements like .header-inner. */
+    .wrap {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .hero {
+        padding-top: 32px;
+        padding-bottom: 56px;
+        gap: 40px;
+    }
+
+    .section-heading h2,
+    .who-section h2,
+    .about-copy h2,
+    .cta-banner h2,
+    .typeform-welcome-inner h2 {
+        font-size: 28px;
+    }
+
+    /* Section rhythm: ~half the desktop spacing. */
+    .section-pad,
+    .method-section,
+    .who-section,
+    .about-section,
+    .faq-section {
+        padding-top: 48px;
+        padding-bottom: 48px;
+    }
+
+    .health-check-section {
+        padding-bottom: 48px;
+    }
+
+    .proof-grid {
+        padding-top: 48px;
+    }
+
+    .proof-bio-wrap {
+        padding-bottom: 48px;
+    }
+
+    .cta-banner-inner,
+    .result-hero,
+    .radar-section {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    .footer-top {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    .typeform-welcome,
+    .typeform-live {
+        margin-top: 24px;
+    }
+
+    .typeform-welcome {
+        padding: 32px 20px;
+    }
+
     .hero-ctas {
         flex-direction: column;
     }

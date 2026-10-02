@@ -345,6 +345,46 @@ function ProblemCarousel({ cards }: { cards: ProblemCard[] }) {
 }
 
 /* ============================================================
+   Condensing header — fixed, shrinks once the page scrolls.
+   The spacer keeps the full (unscrolled) height so content
+   doesn't jump when the header condenses.
+   ============================================================ */
+
+function useCondensingHeader() {
+    const headerRef = React.useRef<HTMLElement>(null);
+    const [headerScrolled, setHeaderScrolled] = React.useState(false);
+    const [headerSpacerHeight, setHeaderSpacerHeight] = React.useState(0);
+    const scrolledRef = React.useRef(false);
+
+    React.useEffect(() => {
+        const onScroll = () => {
+            // Hysteresis so the header doesn't flicker around a single threshold.
+            const y = window.scrollY;
+            const next = scrolledRef.current ? y > 8 : y > 48;
+            if (next !== scrolledRef.current) {
+                scrolledRef.current = next;
+                setHeaderScrolled(next);
+            }
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    React.useLayoutEffect(() => {
+        const el = headerRef.current;
+        if (!el) return;
+        const observer = new ResizeObserver(() => {
+            if (!scrolledRef.current) setHeaderSpacerHeight(el.offsetHeight);
+        });
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
+    return { headerRef, headerScrolled, headerSpacerHeight };
+}
+
+/* ============================================================
    Page
    ============================================================ */
 
@@ -384,6 +424,24 @@ export default function CScaleLandingPage() {
     const aboutParagraphs = t('about.paragraphs') as string[];
 
     const radarPush = useRadarPush(activeRadarPoint, scoreRows.length);
+    const { headerRef, headerScrolled, headerSpacerHeight } = useCondensingHeader();
+    const [menuOpen, setMenuOpen] = React.useState(false);
+
+    React.useEffect(() => {
+        if (!menuOpen) return;
+        const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [menuOpen]);
+
+    const navLinks = (
+        <>
+            <a href="#method">{t('nav.framework')}</a>
+            <a href="#offer">{t('nav.howItWorks')}</a>
+            <a href="#who">{t('nav.whoItsFor')}</a>
+            <a href="#faq">{t('nav.faq')}</a>
+        </>
+    );
 
     const handleRadarMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -404,24 +462,31 @@ export default function CScaleLandingPage() {
     return (
         <div>
             {/* ============ HEADER ============ */}
-            <header className="header">
+            <header ref={headerRef} className={`header${headerScrolled ? ' is-scrolled' : ''}`}>
                 <div className="wrap header-inner">
-                    <Logo variant="dark" fs={58} />
+                    <Logo variant="dark" fs={58} tagline />
                     <div className="header-inner-right">
-                        <nav className="nav">
-                            <a href="#method">{t('nav.framework')}</a>
-                            <a href="#offer">{t('nav.howItWorks')}</a>
-                            <a href="#who">{t('nav.whoItsFor')}</a>
-                            <a href="#faq">{t('nav.faq')}</a>
-                        </nav>
+                        <nav className="nav">{navLinks}</nav>
                         <LanguageSwitcher />
+                        <button
+                            type="button"
+                            className={`menu-toggle${menuOpen ? ' open' : ''}`}
+                            aria-label={t(menuOpen ? 'nav.menuClose' : 'nav.menuOpen')}
+                            aria-expanded={menuOpen}
+                            aria-controls="mobile-nav"
+                            onClick={() => setMenuOpen((open) => !open)}
+                        >
+                            <span />
+                            <span />
+                            <span />
+                        </button>
                     </div>
                 </div>
+                <nav id="mobile-nav" className={`mobile-nav${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(false)}>
+                    <div className="wrap">{navLinks}</div>
+                </nav>
             </header>
-
-            <div className="header-subline">
-                <div className="wrap">{t('header.subline')}</div>
-            </div>
+            <div aria-hidden style={{ height: headerSpacerHeight }} />
 
             {/* ============ HERO ============ */}
             <section className="wrap hero">
@@ -433,8 +498,8 @@ export default function CScaleLandingPage() {
                         {t('hero.body')}
                     </p>
                     <div className="hero-ctas">
-                        <a className="btn btn-primary" href="#health-check">{t('hero.ctaPrimary')}</a>
-                        <div className="btn btn-secondary">{t('hero.ctaSecondary')}</div>
+                        <a className="btn btn-secondary" href="#health-check">{t('hero.ctaPrimary')}</a>
+                        <div className="btn btn-primary">{t('hero.ctaSecondary')}</div>
                     </div>
                     <div className="hero-facts">
                         <div className="hero-fact">
@@ -444,6 +509,10 @@ export default function CScaleLandingPage() {
                         <div className="hero-fact">
 
                             <p>{t('hero.fact2')}</p>
+                        </div>
+                        <div className="hero-fact">
+
+                            <p>{t('hero.fact3')}</p>
                         </div>
 
                     </div>
@@ -457,7 +526,6 @@ export default function CScaleLandingPage() {
                     <div className="score-value-row">
                         <div className="score-value">62</div>
                         <div className="score-value-max">{t('scoreCard.outOf')}</div>
-                        <div className="score-zone">{t('scoreCard.zone')}</div>
                     </div>
                     <div className="score-divider" />
                     <div className="radar-chart">
@@ -573,6 +641,10 @@ export default function CScaleLandingPage() {
                             </div>
                         ))}
                     </div>
+                    {/* Mobile timeline replaces the three per-card CTAs with one. */}
+                    <a className="btn btn-primary offer-cta-mobile" href={CALENDLY_URL} onClick={openCalendly}>
+                        {t('offer.cta')}
+                    </a>
                 </div>
             </section>
 
@@ -598,9 +670,13 @@ export default function CScaleLandingPage() {
                     <div className="about-copy">
                         <div className="kicker">{t('about.kicker')}</div>
                         <h2>{t('about.heading')}</h2>
-                        {aboutParagraphs.map((paragraph) => (
-                            <p key={paragraph}>{paragraph}</p>
-                        ))}
+                        <div className="about-body">
+                            {/* Mobile only: small photo floated into the text; .about-photo is hidden there. */}
+                            <img className="about-photo-inline" src="/1779646966328.jpg" alt="Founder of CScale" />
+                            {aboutParagraphs.map((paragraph) => (
+                                <p key={paragraph}>{paragraph}</p>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
@@ -673,7 +749,7 @@ export default function CScaleLandingPage() {
                         <a href="#method">{t('nav.framework')}</a>
                         <a href="#offer">{t('nav.howItWorks')}</a>
                         <a href="#faq">{t('nav.faq')}</a>
-                        <a href="#">{t('nav.linkedin')}</a>
+                        <a href="https://www.linkedin.com/in/laurie-martin-06b94359" target="_blank" rel="noopener noreferrer">{t('nav.linkedin')}</a>
                     </div>
                 </div>
                 <div className="wrap footer-bottom">
