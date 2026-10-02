@@ -386,6 +386,48 @@ function useCondensingHeader() {
     return { headerRef, headerScrolled, headerSpacerHeight };
 }
 
+/* Drives the mobile offer timeline: marks steps the reader has scrolled past and
+   fills the connector line between them. Writes straight to the DOM (class +
+   CSS var) so scrolling never re-renders the page. Styling lives in the mobile media query. */
+function useOfferTimelineProgress() {
+    const gridRef = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const grid = gridRef.current;
+        if (!grid) return;
+        let frame = 0;
+
+        const update = () => {
+            frame = 0;
+            const trigger = window.innerHeight * 0.6;
+            Array.from(grid.children).forEach((card) => {
+                const step = card.querySelector('.offer-step');
+                if (!(card instanceof HTMLElement) || !step) return;
+                const stepRect = step.getBoundingClientRect();
+                const cardRect = card.getBoundingClientRect();
+                const lineLength = cardRect.bottom - stepRect.bottom;
+                const fill = lineLength > 0 ? (trigger - stepRect.bottom) / lineLength : 0;
+                card.classList.toggle('is-reached', stepRect.top + stepRect.height / 2 <= trigger);
+                card.style.setProperty('--line-fill', String(Math.min(1, Math.max(0, fill))));
+            });
+        };
+        const schedule = () => {
+            if (!frame) frame = requestAnimationFrame(update);
+        };
+
+        update();
+        window.addEventListener('scroll', schedule, { passive: true });
+        window.addEventListener('resize', schedule);
+        return () => {
+            cancelAnimationFrame(frame);
+            window.removeEventListener('scroll', schedule);
+            window.removeEventListener('resize', schedule);
+        };
+    }, []);
+
+    return gridRef;
+}
+
 /* ============================================================
    Page
    ============================================================ */
@@ -427,6 +469,7 @@ export default function CScaleLandingPage() {
 
     const radarPush = useRadarPush(activeRadarPoint, scoreRows.length);
     const { headerRef, headerScrolled, headerSpacerHeight } = useCondensingHeader();
+    const offerGridRef = useOfferTimelineProgress();
     const [menuOpen, setMenuOpen] = React.useState(false);
 
     React.useEffect(() => {
@@ -623,7 +666,7 @@ export default function CScaleLandingPage() {
                         <div className="kicker">{t('offer.kicker')}</div>
                         <h2>{offerHeadingLines[0]} <br />{offerHeadingLines[1]} <br /> {offerHeadingLines[2]}</h2>
                     </div>
-                    <div className="offer-grid">
+                    <div className="offer-grid" ref={offerGridRef}>
                         {offerStages.map((stage) => (
                             <div className={`card offer-card ${stage.featured ? 'featured' : ''}`} key={stage.step}>
                                 <div className={`offer-step ${stage.featured ? 'offer-step-featured' : 'offer-step-default'}`}>

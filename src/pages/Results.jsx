@@ -287,7 +287,7 @@ function Results() {
                     <h1 style={{ fontSize: 38, lineHeight: 1.18 }}>{headline}</h1>
                     <p style={{ fontSize: 17, lineHeight: 1.6, color: 'var(--grey)', maxWidth: '56ch' }}>{summary}</p>
                     <div style={{ marginTop: 6 }}>
-                        <a className="btn btn-primary" href={CALENDLY_URL} onClick={openCalendly}>{zone.cta}</a>
+                        <a className="btn btn-primary result-cta" href={CALENDLY_URL} onClick={openCalendly}>{zone.cta}</a>
                     </div>
                     <p style={{ fontSize: 13, color: 'var(--grey-light)' }}>
                         {t('results.footnotePrefix')}{' '}
@@ -296,9 +296,9 @@ function Results() {
                 </div>
 
                 <div className="card gauge-card">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: 8 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--grey)' }}>{t('results.scoreLabel')}</div>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--green-deep)', background: 'var(--green-light)', padding: '5px 10px', borderRadius: 6 }}>
+                    <div className="gauge-header">
+                        <div className="gauge-label">{t('results.scoreLabel')}</div>
+                        <div className="gauge-pill">
                             {t('results.assessmentResult')}
                         </div>
                     </div>

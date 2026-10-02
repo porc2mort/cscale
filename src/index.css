@@ -339,6 +339,33 @@ p {
     align-items: center;
 }
 
+/* Label and pill always share one line; mobile shrinks the text to make them fit. */
+.gauge-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.gauge-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--grey);
+    white-space: nowrap;
+}
+
+.gauge-pill {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green-deep);
+    background: var(--green-light);
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
 .gauge-chart {
     position: relative;
     width: 100%;
@@ -1496,24 +1523,47 @@ section[id] {
         padding-bottom: 0;
     }
 
-    .offer-card:not(:last-child)::before {
+    /* Connector: ::before is the grey track, ::after the navy fill driven by
+       --line-fill (0–1), which useOfferTimelineProgress sets on scroll. */
+    .offer-card:not(:last-child)::before,
+    .offer-card:not(:last-child)::after {
         content: '';
         position: absolute;
         left: 17px;
         top: 36px;
         bottom: 0;
         width: 2px;
-        background: var(--green-light);
+        background: var(--border);
+    }
+
+    .offer-card:not(:last-child)::after {
+        background: var(--navy);
+        transform: scaleY(var(--line-fill, 0));
+        transform-origin: top;
     }
 
     .offer-card>* {
         grid-column: 2;
     }
 
-    .offer-step {
+    /* No featured step on mobile: every step starts outlined and fills once reached. */
+    .offer-step,
+    .offer-step-default,
+    .offer-step-featured {
         grid-column: 1;
         grid-row: 1 / span 4;
         margin-bottom: 0;
+        box-sizing: border-box;
+        background: var(--white);
+        border: 2px solid var(--border);
+        color: var(--grey-light);
+        transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    .offer-card.is-reached .offer-step {
+        background: var(--navy);
+        border-color: var(--navy);
+        color: var(--white);
     }
 
     .offer-card h3,
@@ -1549,6 +1599,31 @@ section[id] {
         display: flex;
         width: 100%;
         margin-top: 32px;
+    }
+
+    .gauge-card {
+        padding: 24px 20px;
+    }
+
+    /* Scale with viewport so label + pill stay on one line down to ~320px phones. */
+    .gauge-header {
+        gap: 8px;
+    }
+
+    .gauge-label {
+        font-size: clamp(11px, 3.5vw, 14px);
+    }
+
+    .gauge-pill {
+        font-size: clamp(9px, 2.6vw, 12px);
+        padding: 4px 8px;
+    }
+
+    /* Results zone CTA: full width, and long (French) labels wrap instead of overflowing. */
+    .result-cta {
+        width: 100%;
+        white-space: normal;
+        text-align: center;
     }
 
     /* About: swap the large photo for a small one the text wraps around. */
