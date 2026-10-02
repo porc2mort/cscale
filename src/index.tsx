@@ -160,8 +160,10 @@ function LogoIcon({ variant }: { variant: 'dark' | 'white' }) {
     );
 }
 
+// Brand tagline: intentionally not translated.
+const LOGO_TAGLINE = 'Customer Success, built to scale';
+
 function Logo({ variant, fs, tagline }: { variant: 'dark' | 'white'; fs: number; tagline?: boolean | string }) {
-    const { t } = useLanguage();
     return (
         <div className="logo" style={{ '--fs': `${fs}px` } as React.CSSProperties}>
             <div className="logo-row">
@@ -178,7 +180,7 @@ function Logo({ variant, fs, tagline }: { variant: 'dark' | 'white'; fs: number;
                     S<span className="logo-green">cale</span>
                 </div>
             </div>
-            {tagline && <div className="logo-tagline">{typeof tagline === 'string' ? tagline : t('logo.tagline')}</div>}
+            {tagline && <div className="logo-tagline">{typeof tagline === 'string' ? tagline : LOGO_TAGLINE}</div>}
         </div>
     );
 }

@@ -13,17 +13,14 @@ export const translations = {
             menuOpen: 'Open menu',
             menuClose: 'Close menu',
         },
-        logo: {
-            tagline: 'Customer Success, built to scale',
-        },
         hero: {
             titleLines: [
                 "Retention isn't just a Customer Success problem.",
                 "It's a company-wide system, built into every part of the customer journey.",
             ],
             body: 'CScale diagnoses, builds, and runs the CS Ops foundations for growing startups, without the six-month wait and the cost of a senior hire.',
-            ctaPrimary: 'Take the free health check',
-            ctaSecondary: 'Start the full diagnostic',
+            ctaPrimary: 'Free Health Check',
+            ctaSecondary: 'Full Diagnostic',
             fact1: 'It starts with a diagnosis across 7 key areas of your organization. CScale identifies the priorities that are costing you time, money, and customers.',
             fact2: 'From there, we turn those insights into action. Building the processes, workflows, tools, and operating structure needed to make Customer Success more efficient, predictable, and scalable.',
             fact3: 'Less guesswork. Clear priorities. Faster impact.',
@@ -65,12 +62,12 @@ export const translations = {
                     body: "You know how retention matters. But when investors ask for your NRR, you don't have a number you fully trust to share.",
                 },
                 {
-                    title: 'You keep fixing the same problems',
-                    body: 'The team is constantly reacting to tickets, escalations and unhappy customers instead of fixing the processes creating those problems in the first place.',
+                    title: 'Months of development, zero customer usage or adoption',
+                    body: "There's no shortage of ideas to improve usage. But without validating them with your customers or prioritizing them by impact, every sprint risks being wasted.",
                 },
                 {
                     title: 'Your CS team is growing faster than your processes',
-                    body: "You hired more people to keep up with customers, but the underlying workflows and responsibilities haven't evolved with them.",
+                    body: "You're hiring to keep pace with your customers, but responsibilities and workflows aren't keeping up. The team ends up firefighting instead of fixing the processes that create these problems in the first place.",
                 },
             ],
         },
@@ -128,7 +125,7 @@ export const translations = {
         ctaBanner: {
             heading: 'Find out your score before your next board meeting.',
             body: '15 questions, about five minutes. Free, no credit card, no sales call.',
-            cta: 'Take the free Health Check',
+            cta: 'Take the free health check',
         },
         faq: {
             kicker: 'Questions',
@@ -205,17 +202,14 @@ export const translations = {
             menuOpen: 'Ouvrir le menu',
             menuClose: 'Fermer le menu',
         },
-        logo: {
-            tagline: 'Le Customer Success, conçu pour grandir',
-        },
         hero: {
             titleLines: [
-                "La rétention ne repose pas uniquement sur le Customer Success.",
-                "Elle se joue à chaque étape du parcours client, et est le résultat d'une organisation globale.",
+                "La rétention ne repose pas uniquement sur le Customer Success,",
+                "mais se joue à chaque étape du parcours client. Elle découle d'un système efficient.",
             ],
             body: "CScale diagnostique, construit et pilote vos opérations Customer Success. L'expertise d'un profil senior, sans les délais ni le coût d'un recrutement.",
-            ctaPrimary: 'Diagnostic gratuit',
-            ctaSecondary: 'Démarrer le diagnostic complet',
+            ctaPrimary: 'Diagnostic Gratuit',
+            ctaSecondary: 'Diagnostic Complet',
             fact1: "Un diagnostic couvrant 7 catégories clés de votre organisation. CScale identifie les priorités qui vous coûtent du temps, de l'argent et des clients.",
             fact2: "Nous transformons les constats en actions concrètes : processus, workflows, outils et structure opérationnelle, pour rendre le CS plus efficace, proactif, et impactant dans le temps.",
             fact3: "Moins d'approximatif. Des priorités claires. Un impact rapide.",
@@ -231,7 +225,7 @@ export const translations = {
             heading: "Découvrez votre score de performance",
             welcomeHeading: 'Découvrez votre score avant votre prochain board meeting',
             welcomeBody: '15 questions, environ cinq minutes. Gratuit, sans carte de crédit, sans engagement commercial.',
-            cta: 'Lancer le diagnostic gratuit',
+            cta: 'Diagnostic gratuit',
         },
         problem: {
             kicker: 'Cela vous semble familier?',
@@ -257,12 +251,12 @@ export const translations = {
                     body: "Vous savez à quel point la rétention compte. Mais quand les investisseurs demandent votre NRR, vous n'avez pas de chiffre en lequel vous avez pleinement confiance.",
                 },
                 {
-                    title: 'Vous réglez sans cesse les mêmes problèmes',
-                    body: "L'équipe réagit en permanence aux tickets, aux escalades et aux clients mécontents, au lieu de corriger les processus qui créent ces problèmes en premier lieu.",
+                    title: 'Des mois de développement pour zéro usage ou adoption client',
+                    body: "Les idées ne manquent pas pour améliorer l'usage. Mais sans les valider auprès de vos clients ni les prioriser selon leur impact, chaque sprint risque peut s'avérer inutile.",
                 },
                 {
                     title: 'Votre équipe CS grandit plus vite que vos processus',
-                    body: "Vous avez recruté pour suivre le rythme de vos clients, mais les workflows et les responsabilités sous-jacents n'ont pas évolué avec eux.",
+                    body: "Vous recrutez pour suivre le rythme de vos clients, les responsabilités et workflows ne suivent pas. L'équipe éteint les feux plutôt que de corriger les processus qui créent ces problèmes en premier lieu.",
                 },
             ],
         },
@@ -320,7 +314,7 @@ export const translations = {
         ctaBanner: {
             heading: 'Découvrez votre score avant votre prochain comité stratégique.',
             body: '15 questions, environ cinq minutes. Gratuit, sans carte de crédit, sans appel commercial.',
-            cta: 'Faire le bilan de santé gratuit',
+            cta: 'Diagnostic gratuit',
         },
         faq: {
             kicker: 'Questions',
