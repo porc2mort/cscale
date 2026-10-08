@@ -384,7 +384,7 @@ export const translations = {
 };
 
 const defaultContextValue = {
-    lang: 'fr',
+    lang: 'en',
     setLang: () => { },
     t: (path) => path,
 };
@@ -392,12 +392,12 @@ const defaultContextValue = {
 const LanguageContext = createContext(defaultContextValue);
 
 function getStoredLang() {
-    if (typeof window === 'undefined') return 'fr';
+    if (typeof window === 'undefined') return 'en';
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        return stored === 'en' || stored === 'fr' ? stored : 'fr';
+        return stored === 'en' || stored === 'fr' ? stored : 'en';
     } catch {
-        return 'fr';
+        return 'en';
     }
 }
 
